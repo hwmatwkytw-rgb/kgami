@@ -1,7 +1,7 @@
 
 {
-  "name": "|  ᏞᏆꞌ𝇙𝚄𝚇  𝝯𝟮",
-  "nameAr": "لينكس",
+  "name": "|كـا غـامـي",
+  "nameAr": "كاغامي",
   "prefix": "",
   "EVE": false,
   "AI": false,
@@ -9,17 +9,17 @@
   "REACT": true,
   "DIAMOND_VALUE": 500,
   "AdminsID": [
-    "61558704355563"
+    "61588108307572"
   ],
   "editor": [
-    "100083602650172",
-    "61550633168720"
+    "61588108307572",
+    "61588108307572"
   ],
   "email": "",
   "password": "",
   "mongoURI": "mongodb+srv://ahmedaltwm555_db_user:PaslZZmgX7VXRzlw@ber1.jn7kisv.mongodb.net/?appName=ber1",
   "Villages": [],
-  "REPLICATE_API_TOKEN": "",
+  "REPLICATE_API_TOKEN": "r8_Y8yM8Vp5u5G7p9s9o9r9t9h9e9r9e9r9e9",
   "ai_keys": [
     "AIzaSyDi1HZlqTjTPmnSWEhrbRJY3dUDMTPoOls",
     "AIzaSyA6swRr_ezR5kI1iCsGFEU3l30E29qVi_0"
@@ -27,5 +27,5 @@
   "ai_key": "AIzaSyAw6bZXTaBz0eZecgtaD4R40r46VVQiA-g",
   "ai_endpoint": "https://generativelanguage.googleapis.com",
   "developmentMode": false,
-  "hf_token": ""
+  "hf_token": "hf_vOqPjDqLpLmRnSmTmUmVmWmXmYmZm1m2m3"
 }
