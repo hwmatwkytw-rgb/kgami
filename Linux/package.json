@@ -1,35 +1,27 @@
 {
-  "name": "linux",
+  "name": "shinopo",
   "version": "2.0.1",
-  "description": "",
+  "description": "shinopo Bot Developed by Sinko",
   "main": "index.js",
   "scripts": {
     "dev": "nodemon index.js",
     "start": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/ahmdaltwm/Linux-.git"
-  },
-  "keywords": [],
-  "author": "",
+  "author": "Abu Obaida Ali (Sinko)",
   "license": "ISC",
   "type": "commonjs",
-  "bugs": {
-    "url": "https://github.com/ahmdaltwm/Linux-/issues"
-  },
-  "homepage": "https://github.com/ahmdaltwm/Linux-#readme",
   "dependencies": {
     "@google/genai": "^1.30.0",
     "@google/generative-ai": "^0.24.1",
-    "axios": "^1.13.2",
+    "axios": "^1.7.9",
     "chalk": "^4.1.2",
+    "express": "^4.21.0",
     "fs-extra": "^11.3.2",
     "jimp": "^1.6.0",
-    "moment-timezone": "^0.6.0",
-    "mongoose": "^9.0.0",
-    "node-fetch": "^3.3.2",
+    "moment-timezone": "^0.5.45",
+    "mongoose": "^8.0.0",
+    "node-fetch": "^2.7.0",
     "pastebin-js": "^1.0.6",
     "replicate": "^1.4.0",
     "request": "^2.88.2",
