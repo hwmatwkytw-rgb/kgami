@@ -3,7 +3,7 @@ const configs = require("../config.json");
 const log = require('../logger');
 const { getUser } = require('../data/user');
 
-const LYNX_NAME = configs.nameAr || 'لينكس';
+const LYNX_NAME = configs.nameAr || 'كنمبرو';
 const API_KEYS = configs.ai_keys;
 let currentKeyIndex = 0;
 
@@ -42,7 +42,7 @@ async function handlerAI(api, event) {
         if (!isFirstMessage && !isReplyToBot) return;
 
         const userQuery = isFirstMessage ? messageText.slice(LYNX_NAME.length).trim() : messageText;
-        if (!userQuery) return api.sendMessage(`الفار اكل لسانك ولا شنو '-'`, event.threadID, event.messageID);
+        if (!userQuery) return api.sendMessage(`لينكس'`, event.threadID, event.messageID);
 
         // تهيئة الذاكرة
         if (!conversationMemory[threadID]) conversationMemory[threadID] = [];
