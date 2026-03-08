@@ -6,8 +6,8 @@ const log = require('../logger');
 const { getUser } = require('../data/user')
 const configPath = path.join(__dirname, '..', 'config.json');
 
-const LINUX_PREFIX = "⊳";
-const DIVIDER = "────────";
+const LINUX_PREFIX = "🦋"; 
+const DIVIDER = "⊱━━━━━━━━━━━━━━━⊰ 🦋 ⊱━━━━━━━━━━━━━━━⊰";
 
 module.exports = {
   name: "مشرف",
@@ -46,7 +46,7 @@ module.exports = {
     // لا يوجد إجراء
     if (!action) {
       return api.sendMessage(
-        `${LINUX_PREFIX}الخيارات المتاحة هي: [ اضف | حذف | قائمة ].`,
+        `${DIVIDER}\n${LINUX_PREFIX} | الخيارات المتاحة هي:\n⌬ [ اضف | حذف | قائمة ]\n${DIVIDER}`,
         threadID, messageID
       );
     }
@@ -64,7 +64,7 @@ module.exports = {
       case 'add':
 
         if (!targetID) {
-          return api.sendMessage(`${LINUX_PREFIX}رد علي زول يا باطل`, threadID, messageID);
+          return api.sendMessage(`${LINUX_PREFIX} | "أوه؟ عليكِ الإشارة إلى الشخص أولاً، لا أستطيع ضم الأشباح للفيلق."`, threadID, messageID);
         }
 
         const isAdmin = currentConfig.AdminsID.includes(targetID);
@@ -76,7 +76,7 @@ module.exports = {
           if (isAdmin) {
 
             if (isDeveloper) {
-              return api.sendMessage(`${LINUX_PREFIX}دا اساساً مطور`, threadID, messageID);
+              return api.sendMessage(`${LINUX_PREFIX} | هذا الشخص يشغل رتبة "هاشيرا" بالفعل.`, threadID, messageID);
             }
 
             // إزالة من المشرفين
@@ -88,23 +88,23 @@ module.exports = {
 
             fs.writeFileSync(configPath, JSON.stringify(currentConfig, null, 2), 'utf8');
 
-            return api.sendMessage(`${LINUX_PREFIX}تم ترقيته إلى مطور`, threadID, messageID);
+            return api.sendMessage(`${LINUX_PREFIX} | "مبارك.. تم ترقيته من مبيد إلى هاشيرا بقرار ملكي."`, threadID, messageID);
           }
 
           // لو هو مطور مسبقاً
           if (isDeveloper) {
-            return api.sendMessage(`${LINUX_PREFIX}دا اصلاً مشرف`, threadID, messageID);
+            return api.sendMessage(`${LINUX_PREFIX} | هذا الشخص هو هاشيرا بالفعل.`, threadID, messageID);
           }
 
           // إضافة كمشرف جديد
           currentConfig.AdminsID.push(targetID);
           fs.writeFileSync(configPath, JSON.stringify(currentConfig, null, 2), 'utf8');
 
-          return api.sendMessage(`${LINUX_PREFIX}تمت إضافة ID: ${targetID}.`, threadID, messageID);
+          return api.sendMessage(`${LINUX_PREFIX} | تم تسجيل العضو كـ "مبيد شياطين" جديد بنجاح.`, threadID, messageID);
 
         } catch (e) {
           log.error("Error adding admin:" + e);
-          return api.sendMessage(`${LINUX_PREFIX}خطأ: ${e.message}`, threadID, messageID);
+          return api.sendMessage(`${LINUX_PREFIX} | خطأ: ${e.message}`, threadID, messageID);
         }
 
       // -----------------------------
@@ -114,7 +114,7 @@ module.exports = {
       case 'remove':
 
         if (!targetID) {
-          return api.sendMessage(`${LINUX_PREFIX}رد علي الباطل.`, threadID, messageID);
+          return api.sendMessage(`${LINUX_PREFIX} | حددي الشخص المراد طرده من الفيلق.`, threadID, messageID);
         }
 
         try {
@@ -133,15 +133,15 @@ module.exports = {
           }
 
           if (!removed) {
-            return api.sendMessage(`${LINUX_PREFIX}دا زول عادي.`, threadID, messageID);
+            return api.sendMessage(`${LINUX_PREFIX} | "لا داعي للقلق.. هذا الشخص ليس لديه رتبة أصلاً."`, threadID, messageID);
           }
 
           fs.writeFileSync(configPath, JSON.stringify(currentConfig, null, 2), 'utf8');
-          return api.sendMessage(`${LINUX_PREFIX}Done rm`, threadID, messageID);
+          return api.sendMessage(`${LINUX_PREFIX} | "تَمَّ سلب الرتبة.. عُد إلى صفوف العوام."`, threadID, messageID);
 
         } catch (e) {
           log.error("Error removing admin/dev:" + e);
-          return api.sendMessage(`${LINUX_PREFIX}${e.message}`, threadID, messageID);
+          return api.sendMessage(`${LINUX_PREFIX} | ${e.message}`, threadID, messageID);
         }
 
       // -----------------------------
@@ -154,10 +154,10 @@ module.exports = {
         const admins = [...new Set(currentConfig.AdminsID)];
 
         if (developers.length === 0 && admins.length === 0) {
-          return api.sendMessage(`${LINUX_PREFIX}لا يوجد أي مشرفين.`, threadID, messageID);
+          return api.sendMessage(`${LINUX_PREFIX} | السجلات فارغة، لا يوجد قادة هنا.`, threadID, messageID);
         }
 
-        let msg = `${DIVIDER}\n`;
+        let msg = `${DIVIDER}\n   亗 سِـجِـل قـادة الـفـيـلـق 亗\n${DIVIDER}\n`;
 
         const ids = [...developers, ...admins];
         let info = {};
@@ -171,27 +171,27 @@ module.exports = {
         let fullList = [];
 
         developers.forEach(id => {
-          fullList.push({ id, rank: "مطور", priority: 1 });
+          fullList.push({ id, rank: "هاشيرا (مطور)", priority: 1 });
         });
 
         admins.forEach(id => {
-          fullList.push({ id, rank: "مشرف", priority: 2 });
+          fullList.push({ id, rank: "مبيد (مشرف)", priority: 2 });
         });
 
         fullList.sort((a, b) => a.priority - b.priority);
         msg += fullList.map((user, i) => {
-          const name = info?.[user.id]?.name || getUser(user.id)?.character.name;
-          return `${LINUX_PREFIX}${i + 1}. ${name}   ${LINUX_PREFIX}${user.rank}`;
-        }).join("\n");
+          const name = info?.[user.id]?.name || getUser(user.id)?.character.name || "عضو مجهول";
+          return `${LINUX_PREFIX} ${i + 1}. ${name}\n⌬ الرتبة: ${user.rank}`;
+        }).join("\n\n");
 
-        return api.sendMessage(msg, threadID, messageID);
+        return api.sendMessage(`${msg}\n${DIVIDER}`, threadID, messageID);
 
       // -----------------------------
       // ❓ خيار خاطئ
       // -----------------------------
       default:
         return api.sendMessage(
-          `${LINUX_PREFIX}الخيارات المتاحة هي:  [ اضف | حذف | قائمة ].`,
+          `${LINUX_PREFIX} | الخيارات المتاحة هي: [ اضف | حذف | قائمة ].`,
           threadID,
           messageID
         );
