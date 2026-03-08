@@ -11,15 +11,15 @@ module.exports = {
     const userID = event.senderID
     const user = await getUser(userID)
     if (!user) {
-      api.sendMessage(` معندك حساب '-'`, event.threadID, event.messageID)
+      api.sendMessage(` سجل اولا`, event.threadID, event.messageID)
       return
     }
     if (user.money === 0) {
       api.setMessageReaction('0️⃣', event.messageID)
-      api.sendMessage(`بنصحك بالسمبك، ما ممكن مفلس في الواقع والمواقع '-'`, event.threadID, event.messageID)
+      api.sendMessage(`وهيهي انت فقر`, event.threadID, event.messageID)
       return
     }
-    api.sendMessage(`＿＿＿＿＿＿\n⊳رصيدك ${styleNum(user.money)} جنيه\n   ${styleNum(user.diamond)} جوهرة.    \n   ${styleNum(user.gold) || 0} جرام.`, event.threadID, event.messageID);
+    api.sendMessage(`＿＿＿＿＿＿\n ${styleNum(user.money)} جنيه\n   ${styleNum(user.diamond)} جوهرة.    \n   ${styleNum(user.gold) || 0} جرام.`, event.threadID, event.messageID);
     
   }
 };
