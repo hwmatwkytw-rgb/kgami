@@ -1,5 +1,9 @@
 const { getUser, updateUser } = require('../data/user');
 const log = require('../logger')
+
+const SEP = "⊱━━━━━━━━━━━━━━━⊰ 🦋 ⊱━━━━━━━━━━━━━━━⊰";
+const BUTTERFLY = "🦋";
+
 module.exports = {
   name: 'شفاء',
   otherName: ['انعاش', 'heal', 'ايدوتنسي'],
@@ -11,7 +15,7 @@ module.exports = {
       const user = await getUser(senderId);
       
       if (!user || !user.character) {
-        return api.sendMessage(`ما عندك حساب '-'`, event.threadID, event.messageID);
+        return api.sendMessage(`${BUTTERFLY} | أوه؟ يبدو أنه لا يوجد سجل لك في الفيلق.. عليك إنشاء حساب أولاً.`, event.threadID, event.messageID);
       }
 
       const isInBattle = user.character.battle?.status;
@@ -21,7 +25,7 @@ module.exports = {
           const opp = await getUser(opponentId)
           let opponentName = opp.character.name;
           return api.sendMessage(
-              `⊳خلص التحدي مع ${opponentName} اول.`,
+              `${BUTTERFLY} | "لا يمكن أخذ قسط من الراحة بينما القتال مع ${opponentName} لا يزال مستمراً.. ركز!"`,
               event.threadID, 
               event.messageID
           );
@@ -29,7 +33,7 @@ module.exports = {
       
       const cost = 50;
       if (user.diamond < cost) {
-        return api.sendMessage(`ما عندك جواهر كفاية \n⊳ناقصك ${cost - user.diamond} جوهرة`, event.threadID, event.messageID);
+        return api.sendMessage(`${BUTTERFLY} | اعتذاري.. العلاج يتطلب ${cost} جوهرة، ينقصك ${cost - user.diamond} لتلقي العلاج الكامل.`, event.threadID, event.messageID);
       }
       
       // خصم الكرستالات
@@ -45,15 +49,17 @@ module.exports = {
       await updateUser(senderId, user);
       
       api.sendMessage(
-        `⊳${user.character.name}\n كل الاحصائيات ماكس.`,
+        `${SEP}\n${BUTTERFLY} | مـنـزل الـفـراشـة 🏡\n${SEP}\n` +
+        `💠 الصياد: ${user.character.name}\n` +
+        `✨ "تم استعادة كامل القوة.. أسرع، الشياطين لا تنتظر أحداً." ✨\n` +
+        `${SEP}`,
         event.threadID,
         event.messageID
       );
       
     } catch (error) {
       log.error(error);
-      api.sendMessage(`${error}`, event.threadID, event.messageID);
+      api.sendMessage(`${BUTTERFLY} | حدث خطأ في تحضير الدواء: ${error}`, event.threadID, event.messageID);
     }
   }
 };
-
