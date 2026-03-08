@@ -1,6 +1,6 @@
 const { getUser, deleteUser } = require('../data/user');
 module.exports = {
-  name: 'حذف_حسابي',
+  name: 'حسابي_ح',
   type: ['البوت'],
   rank: 0,
   cooldown: 5,
