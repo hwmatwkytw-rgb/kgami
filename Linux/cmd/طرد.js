@@ -6,12 +6,19 @@ const log = require('../logger');
 const img1 = path.join(__dirname, 'cache', 'bankai1.jpg');
 const img2 = path.join(__dirname, 'cache', 'bankai2.jpg');
 
-const KICK_MESSAGE =
-  `Kiss or slap ?
-كيس اور سلاب ؟
-قبله او كف ؟
-beso o bofetada ?
-بيسو او بوفيتادا ?`;
+// الزخرفة الملكية للنصوص
+const SEP = "⊱━━━━━━━━━━━━━━━⊰ 🦋 ⊱━━━━━━━━━━━━━━━⊰";
+const BUTTERFLY = "🦋";
+
+const KICK_MESSAGE = 
+  `亗 بـانـكـاي.. إلـى الـجـحـيـم 亗\n` +
+  `${SEP}\n` +
+  `Kiss or slap ?\n` +
+  `كيس اور سلاب ؟\n` +
+  `قبله او كف ؟\n` +
+  `beso o bofetada ?\n` +
+  `بيسو او بوفيتادا ?\n` +
+  `${SEP}`;
 
 module.exports = {
   name: 'بانكاي',
@@ -26,71 +33,53 @@ module.exports = {
     const { threadID, messageID, senderID, messageReply } = event;
     const botID = api.getCurrentUserID();
 
-    // ⛔ نحتاج بيانات المجموعة
     const threadInfo = await api.getThreadInfo(threadID);
     const adminIDs = threadInfo.adminIDs?.map(a => a.id) || [];
 
-    // ✔ تحقق لو البوت مشرف
     const isBotAdmin = adminIDs.includes(botID);
     if (!isBotAdmin)
-      return api.sendMessage(`جيب ادمن يا باطل '-'`, threadID, messageID);
+      return api.sendMessage(`${BUTTERFLY} | "أوه؟ عليكِ منحي رتبة الإدارة أولاً لتنفيذ الحُكم."`, threadID, messageID);
 
-    // ✔ المنفذ: مشرف قروب؟ أو مطور بوت؟
-    const isExecutorAdmin = adminIDs.includes(senderID);   // مشرف مجموعة
-    const isExecutorDev = config.editor?.includes(senderID); // مطور البوت
+    const isExecutorAdmin = adminIDs.includes(senderID);
+    const isExecutorDev = config.editor?.includes(senderID);
 
     if (!isExecutorAdmin && !isExecutorDev) {
-      return api.sendMessage(`انت منو يا ولدنا ؟ '-'`, threadID, messageID);
+      return api.sendMessage(`${BUTTERFLY} | "من أنتِ لتأمريني؟ لستِ من قادة الفيلق."`, threadID, messageID);
     }
 
-    // ✔ لازم يرد على رسالة
     if (!messageReply) {
-      return api.sendMessage(`رد علي العب يا بطل '-'`, threadID, messageID);
+      return api.sendMessage(`${BUTTERFLY} | "عليكِ الرد على رسالة العضو المراد نفيه."`, threadID, messageID);
     }
 
     const targetID = messageReply.senderID;
 
-    // ✔ معلومات الهدف
     const isTargetBot = targetID === botID;
     const isTargetAdmin = adminIDs.includes(targetID);
     const isTargetDev = config.editor?.includes(targetID);
 
-    // ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
-    // 🛑 حماية: مطور البوت أقوى من الجميع
-    // ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
-
     if (!isExecutorDev) {
-      // منفذ غير مطور
       if (isTargetDev) {
         return reverseKick(api, senderID, threadID, randomImg);
       }
     }
-
-    // ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
-    // 🛑 حماية: مشرف المجموعة لا يطرد مشرف آخر
-    // ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
 
     if (isExecutorAdmin && !isExecutorDev) {
       if (isTargetAdmin) return reverseKick(api, senderID, threadID, randomImg);
       if (isTargetBot) return reverseKick(api, senderID, threadID, randomImg);
     }
 
-    // ⛔ منع طرد نفسك
     if (targetID === senderID) {
-      return api.sendMessage(`تحش نفسك لشنو ؟ '-'`, threadID, messageID);
+      return api.sendMessage(`${BUTTERFLY} | "هل تودين نفي نفسكِ؟ هذا ليس من شيم الهاشيرا."`, threadID, messageID);
     }
 
-    // التحقق من وجود الهدف بالقروب
     const memberExists = threadInfo.userInfo?.some(m => m.id === targetID);
-    if (!memberExists) return api.sendMessage(`دا مجغوم '-'`, threadID, messageID);
+    if (!memberExists) return api.sendMessage(`${BUTTERFLY} | "هذا الشخص تم نفيه بالفعل."`, threadID, messageID);
 
-    // Mentions
     const targetInfo = threadInfo.userInfo.find(m => m.id === targetID);
     const targetName = targetInfo?.name || "العضو";
-
     const mention = [{ tag: targetName, id: targetID }];
 
-    // رسالة ما قبل الطرد
+    // 1. إرسال الرسالة والصورة أولاً
     await api.sendMessage(
       {
         body: `${KICK_MESSAGE}`,
@@ -100,46 +89,37 @@ module.exports = {
       threadID
     );
 
-    // تنفيذ الطرد الفعلي (حسب مكتبتك)
-    try {
-      await api.gcmember("remove", targetID, threadID);
-    } catch (err) {
-      log.error("Kick Error:" + err);
-      return api.sendMessage(
-        `فشلت عملية الطرد:\n${err.message}`,
-        threadID,
-        messageID
-      );
-    }
+    // 2. تنفيذ الطرد الفعلي بعد الإرسال
+    setTimeout(async () => {
+        try {
+          await api.gcmember("remove", targetID, threadID);
+        } catch (err) {
+          log.error("Kick Error:" + err);
+          return api.sendMessage(`${BUTTERFLY} | فشلت عملية النفي: ${err.message}`, threadID, messageID);
+        }
+    }, 1000); // تأخير بسيط لضمان وصول الصورة قبل الطرد
   }
 };
 
-
-// ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
-// 🔥 دالة الطرد العكسي
-// ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
-
 async function reverseKick(api, executorID, threadID, randomImg) {
-
   const info = await api.getUserInfo(executorID);
   const name = info[executorID]?.name || "المشرف";
-
-  const mentions = [{ tag: name, id: executorID }];
+  const mention = [{ tag: name, id: executorID }];
 
   await api.sendMessage(
     {
-      body: `${name}\n${KICK_MESSAGE}`,
+      body: `${name}\n${BUTTERFLY} | "لقد تجرأتِ على قادتكِ.. تذوقي نصلكِ!"\n${KICK_MESSAGE}`,
       mentions: mention,
       attachment: fs.createReadStream(randomImg)
     },
     threadID
   );
 
-  try {
-    await api.gcmember("remove", executorID, threadID);
-  } catch (e) {
-    log.error(e);
-  }
-
-  return;
+  setTimeout(async () => {
+      try {
+        await api.gcmember("remove", executorID, threadID);
+      } catch (e) {
+        log.error(e);
+      }
+  }, 1000);
 }
