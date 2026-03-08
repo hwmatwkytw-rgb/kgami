@@ -1,0 +1,31 @@
+
+{
+  "name": "|  ᏞᏆꞌ𝇙𝚄𝚇  𝝯𝟮",
+  "nameAr": "لينكس",
+  "prefix": "",
+  "EVE": false,
+  "AI": false,
+  "ATTACKD": false,
+  "REACT": true,
+  "DIAMOND_VALUE": 500,
+  "AdminsID": [
+    "61558704355563"
+  ],
+  "editor": [
+    "100083602650172",
+    "61550633168720"
+  ],
+  "email": "",
+  "password": "",
+  "mongoURI": "mongodb+srv://ahmedaltwm555_db_user:PaslZZmgX7VXRzlw@ber1.jn7kisv.mongodb.net/?appName=ber1",
+  "Villages": [],
+  "REPLICATE_API_TOKEN": "",
+  "ai_keys": [
+    "AIzaSyDi1HZlqTjTPmnSWEhrbRJY3dUDMTPoOls",
+    "AIzaSyA6swRr_ezR5kI1iCsGFEU3l30E29qVi_0"
+  ],
+  "ai_key": "AIzaSyAw6bZXTaBz0eZecgtaD4R40r46VVQiA-g",
+  "ai_endpoint": "https://generativelanguage.googleapis.com",
+  "developmentMode": false,
+  "hf_token": ""
+}

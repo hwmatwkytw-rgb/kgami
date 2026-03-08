@@ -1,0 +1,38 @@
+{
+  "name": "linux",
+  "version": "2.0.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon index.js",
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ahmdaltwm/Linux-.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/ahmdaltwm/Linux-/issues"
+  },
+  "homepage": "https://github.com/ahmdaltwm/Linux-#readme",
+  "dependencies": {
+    "@google/genai": "^1.30.0",
+    "@google/generative-ai": "^0.24.1",
+    "axios": "^1.13.2",
+    "chalk": "^4.1.2",
+    "fs-extra": "^11.3.2",
+    "jimp": "^1.6.0",
+    "moment-timezone": "^0.6.0",
+    "mongoose": "^9.0.0",
+    "node-fetch": "^3.3.2",
+    "pastebin-js": "^1.0.6",
+    "replicate": "^1.4.0",
+    "request": "^2.88.2",
+    "ws3-fca": "^3.5.2"
+  }
+}
