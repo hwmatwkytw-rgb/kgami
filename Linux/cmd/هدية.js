@@ -1,11 +1,10 @@
 const fs = require('fs');
 const path = require('path');
 const { getUser, updateUser } = require('../data/user');
-// تأكد من المسار الصحيح للأدوات
-const { styleText, styleNum } = require('../tools') 
+const { styleText, styleNum } = require('../tools');
 const codesPath = path.join(__dirname, '..', 'data', 'code.json');
 
-const COOLDOWN = 20 * 60 * 1000; // 20 دقيقة
+const COOLDOWN = 20 * 60 * 1000; 
 
 module.exports = {
   name: 'هدية',
@@ -16,12 +15,11 @@ module.exports = {
       
       const user = await getUser(senderID);
       if (!user || !user.character) {
-        return api.sendMessage('ما عندك شخصية. استخدم "تسجيل" أولاً.', threadID, messageID);
+        return api.sendMessage('🦋 | لَيس لَديكَ كِيانٌ بَعد.. استَخدم "تسجيل" أولاً.', threadID, messageID);
       }
       
       if (!user.status) user.status = {};
       
-      // التحقق من الوقت
       const lastGift = user.status.lastGiftTime || 0;
       const now = Date.now();
       
@@ -29,39 +27,51 @@ module.exports = {
         const remaining = COOLDOWN - (now - lastGift);
         const minutes = Math.floor(remaining / 60000);
         const seconds = Math.floor((remaining % 60000) / 1000);
-        return api.sendMessage(`تعال بعد :\n${styleNum(minutes)} دقيقة و ${styleNum(styleNum(seconds))} ثانية`, threadID, messageID);
+        
+        return api.sendMessage(
+          `🦋 ╰⊱ صَبراً جَميلاً.. ⊱╮\n\n` +
+          `⌬ اِنتظر قليلاً أيها المحارب:\n` +
+          `⌛ | ${styleNum(minutes)} دقيقة و ${styleNum(seconds)} ثانية`, 
+          threadID, messageID
+        );
       }
       
-      // قراءة الأكواد
       const codes = JSON.parse(fs.readFileSync(codesPath, 'utf8'));
       const validCodes = codes.filter(c => c.usageCount > 0);
       
       if (validCodes.length === 0) {
-        return api.sendMessage('لا توجد أكواد متاحة حالياً.', threadID, messageID);
+        return api.sendMessage('࿇ | للاسف.. لا توجد زهور (أكواد) في الحديقة حالياً.', threadID, messageID);
       }
       
       const randomCode = validCodes[Math.floor(Math.random() * validCodes.length)];
       
-      // محاولة الإرسال للخاص
       try {
-        await api.sendMessage(`${randomCode.txt}`, senderID);
+        const giftMsg = `🦋 ⊱ شـيـنـوبـو تُـرسـل لـك ⊰ 🦋\n\n` +
+                        `✨ كـود الـهـديـة الخاص بـك:\n` +
+                        `» ${randomCode.txt} «\n\n` +
+                        `• استمتع بها بحكمة!`;
+                        
+        await api.sendMessage(giftMsg, senderID);
         
-        // الحفظ فقط إذا نجح الإرسال
         user.status.lastGiftTime = now;
         await updateUser(user.id, user);
         
-        return api.sendMessage(' تم إرسال هديتك في الخاص، تفقد رسائلك (قد تكون في طلبات المراسلة).', threadID, messageID);
+        return api.sendMessage(
+          `⊱✿⊰ تَمَّ الإِرسال بنجاح ⊱✿⊰\n\n` +
+          `🦋 | تَفقد خَاصك الآن (طلبات المراسلة).`, 
+          threadID, messageID
+        );
         
       } catch (sendError) {
-        // إذا فشل الإرسال (الخاص مغلق)
-      api.sendMessage(`${randomCode.txt}`, event.threadID, event.messageID);        
-// return api.sendMessage('❌ لم أتمكن من إرسال الهدية. تأكد أن الخاص مفتوح ولست تحظر البوت.', threadID, messageID);
+        const publicMsg = `🦋 ⊱ هـديـة مـن شـيـنـوبـو ⊰ 🦋\n\n` +
+                          `⌬ كودك هو: ${randomCode.txt}\n\n` +
+                          `⚠️ (فشل الإرسال للخاص، تم العرض هنا)`;
+        api.sendMessage(publicMsg, threadID, messageID);        
       }
       
     } catch (err) {
       console.error('Error in هدية command:', err);
-      return api.sendMessage('حدث خطأ أثناء تنفيذ أمر هدية.', event.threadID, event.messageID);
+      return api.sendMessage('❌ | حدث اضطراب في كيمياء البوت، حاول لاحقاً.', event.threadID, event.messageID);
     }
   }
 };
-
