@@ -3,14 +3,14 @@ const path = require("path");
 const config = require("../config.json");
 
 module.exports = {
-    name: "linux",
+    name: "شينوبو",
     rank: 1,
     cooldowns: 0,
     hide: true,
     run: async (api, event, commands, args) => {
         if (!args[0]) {
             return api.sendMessage(
-                `palace choice [ on | off ] '-'`,
+                ` [ on | off ]؟ `,
                 event.threadID,
                 event.messageID
             );
@@ -24,7 +24,7 @@ module.exports = {
                 config.AI = true;
                 fs.writeFileSync(configPath, JSON.stringify(config, null, 4));
                 api.sendMessage(
-                    `Linux Ai Is On '-'`,
+                    ` تم`,
                     event.threadID,
                     event.messageID
                 );
@@ -35,7 +35,7 @@ module.exports = {
                 config.AI = false;
                 fs.writeFileSync(configPath, JSON.stringify(config, null, 4));
                 api.sendMessage(
-                    `Linux Ai Is Off '-'`,
+                    `تم`,
                     event.threadID,
                     event.messageID
                 );
@@ -43,7 +43,7 @@ module.exports = {
 
             default:
                 api.sendMessage(
-                    `palace choice [ on | off ] '-'`,
+                    `[ on | off ]؟ `,
                     event.threadID,
                     event.messageID
                 );
