@@ -1,16 +1,18 @@
 const {styleNum} = require('../tools')
+
+const SEP = "⊱━━━━━━━━━━━━━━━⊰ 🦋 ⊱━━━━━━━━━━━━━━━⊰";
+const BUTTERFLY = "🦋";
+
 module.exports = {
   name: "ابتايم",
-  type: ['النظام', 'اخري'],
+  type: ['up', 'اخري'],
   hide: true,
   otherName: ['uptime'],
   description: 'يعرض مدة تشغيل البوت',
   rank: 0,
   run: async (api, event) => {
-    // الحصول على مدة التشغيل بالثواني من عملية Node.js الحالية
     const uptimeInSeconds = process.uptime();
     
-    // دوال المساعدة للتحويل من الثواني إلى تنسيق سهل القراءة
     const secondsToDhms = (seconds) => {
       seconds = Number(seconds);
       const days = Math.floor(seconds / (3600 * 24));
@@ -23,7 +25,6 @@ module.exports = {
       let mDisplay = minutes > 0 ? minutes + (minutes === 1 ? " دقيقة، " : " دقيقة، ") : "";
       let sDisplay = secs > 0 ? secs + (secs === 1 ? " ثانية" : " ثانية") : "أقل من ثانية";
       
-      // إزالة الفاصلة الأخيرة إذا كانت موجودة
       let finalString = `${styleNum(dDisplay)}${styleNum(hDisplay)}${styleNum(mDisplay)}${styleNum(sDisplay)}`.trim();
       if (finalString.endsWith('،')) {
         finalString = finalString.slice(0, -1);
@@ -32,8 +33,12 @@ module.exports = {
     }
     
     const readableUptime = secondsToDhms(uptimeInSeconds);
-    // إرسال الرسالة
-    const message = `⊳ ${readableUptime}`;
+
+    // الرسالة المزخرفة بأسلوب إبلين الملكي
+    const message = `${SEP}\n${BUTTERFLY} | حـالـة الـنـظـام\n${SEP}\n` +
+                    `⌬ تـم تـشـغـيـل الـبـوت مـنـذ:\n` +
+                    `✨ ${readableUptime}\n` +
+                    `${SEP}`;
     
     api.sendMessage(message, event.threadID, event.messageID);
   }
