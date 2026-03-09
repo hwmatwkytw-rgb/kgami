@@ -45,14 +45,14 @@ module.exports = {
       const slicedCmds = availableCommands.slice(startIndex, endIndex);
       
       for (let i = 0; i < slicedCmds.length; i += 3) {
-        const row = slicedCmds.slice(i, i + 3).map(cmd => `⊳${cmd.name}`).join(' | ');
+        const row = slicedCmds.slice(i, i + 3).map(cmd => `${cmd.name}`).join(' ㊙︎ ');
         commandsList.push(row);
       }
       
       const finalCommands = commandsList.join('\n');
 
       const messageText = `⎔────────────⎔
-  ${styleText('COMMANDS LIST')}
+  ${styleText(' 𝒔𝒉𝒊𝒏𝒐𝒑𝒐')}
 ⎔────────────⎔
 ${finalCommands}
 
