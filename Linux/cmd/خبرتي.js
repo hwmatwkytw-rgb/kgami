@@ -12,7 +12,7 @@ const styleText = (text) => {
     return text.split('').map(char => map[char] || char).join('');
 };
 
-const LINE = "⊱━━━━━━━━━━━━━━━⊰ 🦋 ⊱━━━━━━━━━━━━━━━⊰";
+const LINE = "";
 
 module.exports = {
   name: 'خبرتي',
