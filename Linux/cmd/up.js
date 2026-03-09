@@ -22,21 +22,21 @@ module.exports = {
       const minutes = Math.floor((seconds % 3600) / 60);
       const secs = Math.floor(seconds % 60);
       
-      // هنا خلينا styleNum للأرقام فقط عشان الكلام العربي يظهر
-      let dDisplay = days > 0 ? `${styleNum(days)}${days === 1 ? " يوم" : " أيام"}، ` : "";
-      let hDisplay = hours > 0 ? `${styleNum(hours)}${hours === 1 ? " ساعة" : " ساعات"}، ` : "";
-      let mDisplay = minutes > 0 ? `${styleNum(minutes)}${minutes === 1 ? " دقيقة" : " دقائق"}، ` : "";
-      let sDisplay = secs > 0 ? `${styleNum(secs)}${secs === 1 ? " ثانية" : " ثواني"}` : "أقل من ثانية";
+      let dDisplay = days > 0 ? days + (days === 1 ? " يوم، " : " أيام، ") : "";
+      let hDisplay = hours > 0 ? hours + (hours === 1 ? " ساعة، " : " ساعات، ") : "";
+      let mDisplay = minutes > 0 ? minutes + (minutes === 1 ? " دقيقة، " : " دقيقة، ") : "";
+      let sDisplay = secs > 0 ? secs + (secs === 1 ? " ثانية" : " ثانية") : "أقل من ثانية";
       
-      let finalString = `${dDisplay}${hDisplay}${mDisplay}${sDisplay}`.trim();
+      let finalString = `${styleNum(dDisplay)}${styleNum(hDisplay)}${styleNum(mDisplay)}${styleNum(sDisplay)}`.trim();
       if (finalString.endsWith('،')) {
         finalString = finalString.slice(0, -1);
       }
-      return finalString;
+      return finalString || 'فترة قصيرة جداً';
     }
     
     const readableUptime = secondsToDhms(uptimeInSeconds);
 
+    // تطبيق نمط رحيق السم 2 مع الحفاظ على بنيتك
     const message = `${TOP}\n${SIDE}\n` +
                     `${SIDE} ${ICON} حـالـة الـنـظـام\n` +
                     `${SIDE}\n` +
