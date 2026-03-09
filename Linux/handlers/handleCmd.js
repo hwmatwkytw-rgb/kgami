@@ -146,7 +146,7 @@ async function handleCommand(api, event, commands) {
 
     // --- 4. تنفيذ الأمر ---  
     try {  
-        api.setMessageReaction('🦋', event.messageID); // تفاعل الفراشة بدلاً من 🔄
+        api.setMessageReaction('', event.messageID); // تفاعل الفراشة بدلاً من 🔄
         await command.run(api, event, commands, args);  
         if (command.usageCount !== undefined) command.usageCount++;  
         return true; 
