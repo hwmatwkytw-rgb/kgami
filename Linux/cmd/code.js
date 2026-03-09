@@ -5,8 +5,8 @@ const { getUser, updateUser } = require('../data/user');
 const { styleText, styleNum } = require('../tools');
 
 const codesPath = path.join(__dirname, '..', 'data', 'code.json');
-const PREFIX = "⊳";
-const DIVIDER = "───────";
+const PREFIX = "㊙︎";
+const DIVIDER = "⎔────────────⎔";
 
 module.exports = {
   name: "كود",
