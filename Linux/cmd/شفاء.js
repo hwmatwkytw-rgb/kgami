@@ -1,8 +1,8 @@
 const { getUser, updateUser } = require('../data/user');
 const log = require('../logger')
 
-const SEP = "⊱━━━━━━━━━━━━━━━⊰ 🦋 ⊱━━━━━━━━━━━━━━━⊰";
-const BUTTERFLY = "🦋";
+const SEP = "⎔────────────⎔";
+const BUTTERFLY = "✮";
 
 module.exports = {
   name: 'شفاء',
