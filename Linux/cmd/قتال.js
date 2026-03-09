@@ -25,8 +25,8 @@ const Utils = {
 };
 
 // فواصل الزخرفة
-const sep = "◈━━━━━━━━━━━━━━━━━━━◈";
-const butterfly = "🦋 ⊱━━━━━━━━━━━━━━━⊰ 🦋";
+const sep = "⎔────────────⎔";
+const butterfly = "🦋  🦋";
 
 class BattleSystem {
   constructor(attacker, defender) {
