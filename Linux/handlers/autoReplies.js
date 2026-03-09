@@ -162,20 +162,20 @@ async function handleAutoReplies(api, event) {
       api.setMessageReaction("😢", event.messageID);
     }
     if (
-      react.includes("ستارك") ||
+      react.includes("سينكو") ||
       react.includes("الصلاة") ||
       react.includes("صلو") ||
       react.includes("الدعاء") ||
-      react.includes("قلب") ||
+      react.includes("وسكي") ||
       react.includes("السعودية") ||
       react.includes("evening") ||
       react.includes("eat") ||
       react.includes("Eat") ||
       react.includes("night") || react.includes("كيومي") ||
       react.includes("Night") ||
-      react.includes("Nyt")
+      react.includes("ويسكي")
     ) {
-      api.setMessageReaction("❤", event.messageID);
+      api.setMessageReaction("🖤", event.messageID);
     }
   }
   // الردود التلقائية من الملف الخارجي
