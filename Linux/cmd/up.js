@@ -1,6 +1,6 @@
 const {styleNum} = require('../tools')
 
-const SEP = "⊱━━━━━━━━━━━━━━━⊰ 🦋 ⊱━━━━━━━━━━━━━━━⊰";
+const SEP = "⎔────────────⎔";
 const BUTTERFLY = "🦋";
 
 module.exports = {
