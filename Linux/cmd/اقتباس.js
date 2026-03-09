@@ -1,11 +1,12 @@
 const log = require('../logger');
+const { styleText } = require('../tools');
 
-const SEP = "⊱━━━━━━━━━━━━━━━⊰ 🦋 ⊱━━━━━━━━━━━━━━━⊰";
-const BUTTERFLY = "🦋";
+const SEP = "⎔────────────⎔";
+const ICON = "㊙︎";
 
 module.exports = {
   name: "اقتباس",
-  otherName: ["quote"],
+  otherName: ["quote", "حكمة"],
   type: ['النصوص', 'اخري'],
   rank: 0,
   cooldown: 2,
@@ -13,7 +14,6 @@ module.exports = {
 
   run: async (api, event) => {
     try {
-      // مصفوفة الاقتباسات الداخلية (يمكنك إضافة ما تريد هنا)
       const quotes = [
         { q: "الأخطاء ليست عيباً، العيب هو عدم التعلم منها.", a: "شينوبو كوشو" },
         { q: "مهما بلغت قوة عدوك، ابحث دائماً عن نقطة ضعفه.", a: "إبلين" },
@@ -24,16 +24,15 @@ module.exports = {
         { q: "كل نهاية هي بداية لشيء أعظم، فقط آمن بذلك.", a: "حكمة قديمة" }
       ];
 
-      // اختيار اقتباس عشوائي من القائمة
       const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
 
-      // تنسيق الرسالة بأسلوب إبلين
-      const msg = `${SEP}\n${BUTTERFLY} | حـكـمـة الـيـوم\n\n" ${randomQuote.q} "\n\n⌬ القائل: ${randomQuote.a}\n${SEP}`;
+      // التنسيق الهندسي الجديد (البداية والنهاية فقط)
+      const msg = `${SEP}\n  ${styleText('ROYAL QUOTE')}\n\n"${randomQuote.q}"\n\n${ICON} القائل: ${randomQuote.a}\n\n${SEP}`;
       
       api.sendMessage(msg, event.threadID, event.messageID);
 
     } catch (err) {
-      api.sendMessage(`${BUTTERFLY} | أعتذر، حدث خطأ في استخراج الحكمة من السجلات.`, event.threadID, event.messageID);
+      api.sendMessage(`${ICON} | أعتذر، حدث خطأ في استخراج الحكمة.`, event.threadID, event.messageID);
       log.error(err);
     }
   }
