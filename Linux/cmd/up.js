@@ -1,7 +1,9 @@
-const {styleNum} = require('../tools')
+const { styleNum } = require('../tools');
 
-const SEP = "⎔────────────⎔";
-const BUTTERFLY = "🦋";
+const TOP = "⎓⎓⎓  🪻  𝚂𝙷𝙸𝙽𝙾𝙱𝚄  🪻  ⎓⎓⎓";
+const SIDE = "  ⎎ ";
+const BOTTOM = "⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓";
+const ICON = "㊙︎";
 
 module.exports = {
   name: "ابتايم",
@@ -20,25 +22,28 @@ module.exports = {
       const minutes = Math.floor((seconds % 3600) / 60);
       const secs = Math.floor(seconds % 60);
       
-      let dDisplay = days > 0 ? days + (days === 1 ? " يوم، " : " أيام، ") : "";
-      let hDisplay = hours > 0 ? hours + (hours === 1 ? " ساعة، " : " ساعات، ") : "";
-      let mDisplay = minutes > 0 ? minutes + (minutes === 1 ? " دقيقة، " : " دقيقة، ") : "";
-      let sDisplay = secs > 0 ? secs + (secs === 1 ? " ثانية" : " ثانية") : "أقل من ثانية";
+      // هنا خلينا styleNum للأرقام فقط عشان الكلام العربي يظهر
+      let dDisplay = days > 0 ? `${styleNum(days)}${days === 1 ? " يوم" : " أيام"}، ` : "";
+      let hDisplay = hours > 0 ? `${styleNum(hours)}${hours === 1 ? " ساعة" : " ساعات"}، ` : "";
+      let mDisplay = minutes > 0 ? `${styleNum(minutes)}${minutes === 1 ? " دقيقة" : " دقائق"}، ` : "";
+      let sDisplay = secs > 0 ? `${styleNum(secs)}${secs === 1 ? " ثانية" : " ثواني"}` : "أقل من ثانية";
       
-      let finalString = `${styleNum(dDisplay)}${styleNum(hDisplay)}${styleNum(mDisplay)}${styleNum(sDisplay)}`.trim();
+      let finalString = `${dDisplay}${hDisplay}${mDisplay}${sDisplay}`.trim();
       if (finalString.endsWith('،')) {
         finalString = finalString.slice(0, -1);
       }
-      return finalString || 'فترة قصيرة جداً';
+      return finalString;
     }
     
     const readableUptime = secondsToDhms(uptimeInSeconds);
 
-    // الرسالة المزخرفة بأسلوب إبلين الملكي
-    const message = `${SEP}\n${BUTTERFLY} | حـالـة الـنـظـام\n${SEP}\n` +
-                    `⌬ تـم تـشـغـيـل الـبـوت مـنـذ:\n` +
-                    `✨ ${readableUptime}\n` +
-                    `${SEP}`;
+    const message = `${TOP}\n${SIDE}\n` +
+                    `${SIDE} ${ICON} حـالـة الـنـظـام\n` +
+                    `${SIDE}\n` +
+                    `${SIDE} ⌬ تـم تـشـغـيـل الـبـوت مـنـذ:\n` +
+                    `${SIDE} ✨ ${readableUptime}\n` +
+                    `${SIDE}\n` +
+                    `${BOTTOM}\n  𝜗𝜚 🦋`;
     
     api.sendMessage(message, event.threadID, event.messageID);
   }
