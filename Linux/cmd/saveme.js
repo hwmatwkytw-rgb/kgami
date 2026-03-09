@@ -6,8 +6,8 @@ const config = require('../config.json');
 const MAX_NAME_LENGTH = 10;
 const MIN_NAME_LENGTH = 3;
 
-const SEP = "⊱━━━━━━━━━━━━━━━⊰ 🦋 ⊱━━━━━━━━━━━━━━━⊰";
-const BUTTERFLY = "🦋";
+const SEP = "⎔────────────⎔";
+const BUTTERFLY = "㊙︎";
 
 // تحويل الفئات لتناسب عالم قاتل الشياطين (نفس توزيع الإحصائيات)
 function getInitialStatsByType(type) {
