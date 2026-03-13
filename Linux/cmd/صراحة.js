@@ -1,6 +1,7 @@
 module.exports = {
   name: "صراحة",
   otherName: ['صراحه'],
+  category: "النصوص", // إضافة الفئة التي ينتمي إليها أمر اقتباس
   rank: 0,
   cooldown: 0,
   run: async (api, event) => {
@@ -49,12 +50,10 @@ module.exports = {
       'موقف محرج حصل معاك',
       'لابس شنو',
       'لونك المفضل'
-      
     ];
     
     var tle = tl[Math.floor(Math.random() * tl.length)];
     var lon = `⊳${tle}.`;
-    return api.sendMessage(lon, event.threadID, event.messageID);
+    return api.sendMessage(lon, threadID, messageID);
   }
-  
 };
