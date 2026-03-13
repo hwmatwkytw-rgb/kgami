@@ -6,10 +6,10 @@ const config = require('../config.json');
 const MAX_NAME_LENGTH = 10;
 const MIN_NAME_LENGTH = 3;
 
-const SEP = "⎔────────────⎔";
-const BUTTERFLY = "㊙︎";
+const SEP = "●───── ✾ ⌬ ✾ ─────●";
+const FLOWER = "✾";
 
-// تحويل الفئات لتناسب عالم قاتل الشياطين (نفس توزيع الإحصائيات)
+// تحويل الفئات لتناسب عالم قاتل الشياطين
 function getInitialStatsByType(type) {
   const stats = {
     'ماء':     { HP: 350, ATK: 220, DEF: 180, SPD: 120, IQ: 130 },
@@ -19,7 +19,6 @@ function getInitialStatsByType(type) {
     'رياح':   { HP: 260, ATK: 160, DEF: 140, SPD: 230, IQ: 210 },
     'شمس':   { HP: 300, ATK: 180, DEF: 150, SPD: 150, IQ: 220 }
   };
-
   return stats[type] || stats['ماء'];
 }
 
@@ -41,9 +40,9 @@ function sanitizeName(rawName) {
 
 module.exports = {
   name: 'تسجيل',
-  otherName: ['سجلني', 'انشاء'],
+  otherName: ['سجلني', 'دخليني'],
   rank: 0,
-  type: 'النظام',
+  category: 'الألعاب', // تمت الإضافة لفئة الألعاب
   discretion: 'الانضمام لفيلق قتلة الشياطين وإنشاء حسابك الخاص.', 
   cooldown: 3,
   run: async (api, event) => {
@@ -54,9 +53,9 @@ module.exports = {
 
       const exist = await getUser(senderId);
       if (exist) {
-        api.setMessageReaction('🦋', messageID, threadID);
+        api.setMessageReaction('🌸', messageID, () => {}, true);
         return api.sendMessage(
-          `${BUTTERFLY} | "أوه؟ أنت عضو في الفيلق بالفعل يا ${exist.character.name}."`,
+          `${FLOWER} ┇ أوه؟ أنت عضو في الفيلق بالفعل يا ${exist.character.name}.`,
           threadID,
           messageID
         );
@@ -67,9 +66,9 @@ module.exports = {
       const sanitizedFullInput = sanitizeName(fullInput);
 
       if (!sanitizedFullInput) {
-        api.setMessageReaction('❌', messageID);
+        api.setMessageReaction('❌', messageID, () => {}, true);
         return api.sendMessage(
-            `${BUTTERFLY} | "عليك كتابة اسمك بشكل صحيح لتسجيلك في السجلات.. مثال: تسجيل سينكو"`,
+            `${FLOWER} ┇ عليك كتابة اسمك بشكل صحيح لتسجيلك.. مثال: تسجيل سينكو`,
             threadID,
             messageID
         );
@@ -81,9 +80,9 @@ module.exports = {
       const secondWord = sanitizedArgs.length > 1 ? sanitizedArgs[1] : null;
 
       if (!firstWord) {
-        api.setMessageReaction('💔', messageID);
+        api.setMessageReaction('💔', messageID, () => {}, true);
         return api.sendMessage(
-          `${BUTTERFLY} | "أين الاسم؟ لا يمكنني تسجيل محارب بدون اسم."`,
+          `${FLOWER} ┇ أين الاسم؟ لا يمكنني تسجيل محارب بدون اسم.`,
           threadID,
           messageID
         );
@@ -95,9 +94,9 @@ module.exports = {
         if (secondWord) {
           name = secondWord;
         } else {
-          api.setMessageReaction('😕', messageID);
+          api.setMessageReaction('😕', messageID, () => {}, true);
           return api.sendMessage(
-            `${BUTTERFLY} | "الاسم قصير جداً.. نحتاج لـ ${MIN_NAME_LENGTH} أحرف على الأقل."`,
+            `${FLOWER} ┇ الاسم قصير جداً.. نحتاج لـ ${MIN_NAME_LENGTH} أحرف على الأقل.`,
             threadID,
             messageID
           );
@@ -105,9 +104,9 @@ module.exports = {
       }
 
       if (name.length > MAX_NAME_LENGTH) {
-        api.setMessageReaction('❌', messageID);
+        api.setMessageReaction('❌', messageID, () => {}, true);
         return api.sendMessage(
-          `${BUTTERFLY} | "هذا الاسم طويل جداً، لن يسعه سجل الفيلق."`,
+          `${FLOWER} ┇ هذا الاسم طويل جداً، لن يسعه سجل الفيلق.`,
           threadID,
           messageID
         );
@@ -118,9 +117,9 @@ module.exports = {
       const isDuplicate = allUsers.some(user => user.character.name.toLowerCase() === nameToCheck);
       
       if (isDuplicate) {
-          api.setMessageReaction('📛', messageID);
+          api.setMessageReaction('📛', messageID, () => {}, true);
           return api.sendMessage(
-              `${BUTTERFLY} | "هذا الاسم محجوز لمحارب آخر، اختر اسماً يميزك."`,
+              `${FLOWER} ┇ هذا الاسم محجوز لمحارب آخر، اختر اسماً يميزك.`,
               threadID,
               messageID
           );
@@ -150,14 +149,14 @@ module.exports = {
 
       await saveUser(newUser);
 
-      api.setMessageReaction('✅', messageID);
+      api.setMessageReaction('✅', messageID, () => {}, true);
 
       return api.sendMessage(
         `${SEP}\n` +
-        `${BUTTERFLY} | تـم الـانـضـمـام لـلـفـيـلـق بـنـجـاح\n` +
+        `${FLOWER} ┇ تـم الـانـضـمـام لـلـفـيـلـق بـنـجـاح ✅\n` +
         `${SEP}\n` +
-        `⌬ الاسم: ${name}\n` +
-        `⌬ تنفس: ${randomType}\n` +
+        `✾ ┇ الاسم: ${name}\n` +
+        `✾ ┇ التنفس: ${randomType}\n\n` +
         `✨ "مرحباً بك في مواجهة الظلام.. كُن قوياً." ✨\n` +
         `${SEP}`,
         threadID,
@@ -166,7 +165,7 @@ module.exports = {
 
     } catch (error) {
       log.error('Error in تسجيل command:' + error);
-      api.sendMessage(`${BUTTERFLY} | حدث خطأ أثناء التسجيل: ${error.message}`, threadID, messageID);
+      api.sendMessage(`${FLOWER} ┇ حدث خطأ أثناء التسجيل.`, threadID, messageID);
     }
   }
 };
