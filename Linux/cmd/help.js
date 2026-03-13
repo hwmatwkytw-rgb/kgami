@@ -1,4 +1,3 @@
-// cmd/help.js المعدل لظهور كل الأوامر للمطور
 const { getUserRank } = require("../handlers/handleCmd");
 const log = require('../logger')
 const config = require('../config.json')
@@ -14,51 +13,51 @@ module.exports = {
   run: async (api, event, allCommands) => {
     try {
       const { senderID, threadID, messageID } = event;
-      const args = event.body.split(/\s+/).slice(1);
       const userRank = getUserRank(senderID, config);
       
-      // التعديل هنا: إذا كانت الرتبة 2 (مطور) يعرض حتى الأوامر المخفية
+      // تصفية الأوامر: المطور يرى كل شيء، المستخدم يرى رتبته فقط
       const availableCommands = (allCommands || []).filter(cmd => {
-        if (userRank >= 2) return cmd.name !== 'اوامر'; // المطور يرى كل شيء
+        if (userRank >= 2) return cmd.name !== 'اوامر'; 
         return cmd.rank <= userRank && cmd.hide === false && cmd.name !== 'اوامر';
       });
 
       if (availableCommands.length === 0) {
-        return api.sendMessage(`لا توجد أوامر متاحة حالياً.`, threadID, messageID);
+        return api.sendMessage(`⦿───── ✾ ⌬ ✾ ─────⦿\n✾ ┇ لا توجد أوامر متاحة حالياً.\n●───── ✾ ⌬ ✾ ─────●`, threadID, messageID);
       }
       
-      // رفعنا العدد لـ 30 عشان المطور يشوف أغلب أوامره في صفحة واحدة
-      const itemsPerPage = userRank >= 2 ? 30 : 15; 
-      const pageNumber = parseInt(args[0], 10) || 1;
       const totalCommands = availableCommands.length;
-      const totalPages = Math.ceil(totalCommands / itemsPerPage);
-      
-      const startIndex = (pageNumber - 1) * itemsPerPage;
-      const endIndex = startIndex + itemsPerPage;
-      
-      const commandsList = [];
-      const slicedCmds = availableCommands.slice(startIndex, endIndex);
-      
-      for (let i = 0; i < slicedCmds.length; i += 3) {
-        const row = slicedCmds.slice(i, i + 3).map(cmd => `${cmd.name}`).join(' ㊙︎ ');
-        commandsList.push(row);
+
+      // تقسيم كل الأوامر المتاحة إلى فئات
+      const categories = {};
+      availableCommands.forEach(cmd => {
+        const cat = cmd.category || "أخرى";
+        if (!categories[cat]) categories[cat] = [];
+        categories[cat].push(cmd.name);
+      });
+
+      let finalCommands = "";
+      for (const cat in categories) {
+        finalCommands += `✾ ┇ ⦿ ⟬ ${cat} ⟭\n`;
+        const cmds = categories[cat];
+        // عرض الأوامر بنظام 3 في كل سطر
+        for (let i = 0; i < cmds.length; i += 3) {
+          finalCommands += `✾ ┇  ${cmds.slice(i, i + 3).join(' ⦿ ')}\n`;
+        }
+        finalCommands += `✾ ┇ ╼╼╼╼╼╼╼╼╼╼╼╼╼\n`;
       }
-      
-      const finalCommands = commandsList.join('\n');
 
-      const messageText = `⎔────────────⎔
-  ${styleText(' 𝒔𝒉𝒊𝒏𝒐𝒑𝒐')}
-⎔────────────⎔
+      const messageText = `⦿───── ✾ ⌬ ✾ ─────⦿
+✾ ┇ ⦿ ⟬ ${styleText('𝒆𝒑𝒍𝒊𝒏 𝒃𝒐𝒕')} ⟭
+●───── ✾ ⌬ ✾ ─────●
 ${finalCommands}
-
-. ${styleText('Total')} : ${styleNum(totalCommands)}
-. ${styleText('Page')} : ${styleNum(pageNumber)} / ${styleNum(totalPages)}
-⎔────────────⎔`;
+✾ ┇ . ${styleText('استمتع بل بوت')} : ${styleNum(totalCommands)}
+✾ ┇ . ${styleText('🇯🇵')} : ${userRank >= 2 ? styleText('Developer') : styleText('User')}
+●───── ✾ ⌬ ✾ ─────●`;
       
       api.sendMessage(messageText, threadID, messageID);
     } catch (err) {
       log.error(err);
-      api.sendMessage('erorr in help.js', config.editor);
+      api.sendMessage('error in help.js', config.editor);
     }
   }
 };
