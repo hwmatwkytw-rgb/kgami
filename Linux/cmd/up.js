@@ -1,20 +1,20 @@
+const os = require('os');
 const { styleNum } = require('../tools');
 
-const TOP = "⎓⎓⎓  🪻  𝚂𝙷𝙸𝙽𝙾𝙱𝚄  🪻  ⎓⎓⎓";
-const SIDE = "  ⎎ ";
-const BOTTOM = "⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓";
-const ICON = "㊙︎";
+const SEP = "●───── ✾ ⌬ ✾ ─────●";
+const ICON = "✾";
 
 module.exports = {
   name: "ابتايم",
   type: ['up', 'اخري'],
-  hide: true,
+  category: "النظام",
   otherName: ['uptime'],
-  description: 'يعرض مدة تشغيل البوت',
+  description: 'يعرض مدة تشغيل البوت وحالة النظام',
   rank: 0,
   run: async (api, event) => {
     const uptimeInSeconds = process.uptime();
     
+    // الحفاظ على دالتك الأصلية لتحويل الوقت
     const secondsToDhms = (seconds) => {
       seconds = Number(seconds);
       const days = Math.floor(seconds / (3600 * 24));
@@ -27,23 +27,33 @@ module.exports = {
       let mDisplay = minutes > 0 ? minutes + (minutes === 1 ? " دقيقة، " : " دقيقة، ") : "";
       let sDisplay = secs > 0 ? secs + (secs === 1 ? " ثانية" : " ثانية") : "أقل من ثانية";
       
-      let finalString = `${styleNum(dDisplay)}${styleNum(hDisplay)}${styleNum(mDisplay)}${styleNum(sDisplay)}`.trim();
-      if (finalString.endsWith('،')) {
-        finalString = finalString.slice(0, -1);
-      }
-      return finalString || 'فترة قصيرة جداً';
+      return `${dDisplay}${hDisplay}${mDisplay}${sDisplay}`.trim();
     }
     
     const readableUptime = secondsToDhms(uptimeInSeconds);
 
-    // تطبيق نمط رحيق السم 2 مع الحفاظ على بنيتك
-    const message = `${TOP}\n${SIDE}\n` +
-                    `${SIDE} ${ICON} حـالـة الـنـظـام\n` +
-                    `${SIDE}\n` +
-                    `${SIDE} ⌬ تـم تـشـغـيـل الـبـوت مـنـذ:\n` +
-                    `${SIDE} ✨ ${readableUptime}\n` +
-                    `${SIDE}\n` +
-                    `${BOTTOM}\n  𝜗𝜚 🦋`;
+    // حساب البيانات الإضافية (رام، مجموعات، سرعة)
+    const totalRam = (os.totalmem() / (1024 * 1024 * 1024)).toFixed(2);
+    const freeRam = (os.freemem() / (1024 * 1024 * 1024)).toFixed(2);
+    const usedRam = (totalRam - freeRam).toFixed(2);
+    
+    const threadList = await api.getThreadList(100, null, ["INBOX"]);
+    const groupsCount = threadList.filter(thread => thread.isGroup).length;
+    
+    const ping = Date.now() - event.timestamp; 
+
+    // بناء الرسالة بنفس ستايلك مع الزقرة الجديدة
+    const message = 
+      `${SEP}\n` +
+      `${ICON} ┇ حـالـة الـنـظـام 💡\n` +
+      `${SEP}\n` +
+      `✾ ┇ مـنـذ: ${styleNum(readableUptime)}\n` +
+      `✾ ┇ الـرام: ${styleNum(usedRam)}GB / ${styleNum(totalRam)}GB\n` +
+      `✾ ┇ الـمجموعات: ${styleNum(groupsCount)}\n` +
+      `✾ ┇ الـسرعة: ${styleNum(Math.abs(ping))}ms\n` +
+      `✾ ┇ الـنظام: ${os.platform()}\n` +
+      `${SEP}\n` +
+      ` " `;
     
     api.sendMessage(message, event.threadID, event.messageID);
   }
