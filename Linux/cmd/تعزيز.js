@@ -1,13 +1,16 @@
 const { getUser, updateUser } = require('../data/user');
 const log = require('../logger');
-const { styleNum, styleText } = require('../tools')
-// تحديد فترة التهدئة بالمللي ثانية (دقيقتان = 2 * 60 * 1000)
+const { styleNum, styleText } = require('../tools');
+
+// تحديد فترة التهدئة (3 دقائق)
 const COOLDOWN_TIME_MS = 180 * 1000; 
 
+const SEP = "●───── ✾ ⌬ ✾ ─────●";
+const FLOWER = "✾";
+
 const POWERS_MAP = {
-    // ... (نفس قائمة القدرات دون تغيير) ...
     'معزز': {
-        name: "تعزيز القوة",
+        name: "تعزيز ",
         description: "زيادة هجوم وصحة المعزز اعتماداً على المستوى.",
         requirements: { level: 10 },
         effects: [
@@ -80,7 +83,7 @@ async function executePowerEngine(senderID, userData, powerConfig) {
                 const original = userData.character[stat] || 0;
                 const increase = Math.floor(original * multiplier);
                 updates[`character.${stat}`] = original + increase;
-                messages.push(`⊳${styleText('stat')} +${styleNum(increase)}`);
+                messages.push(`✾ ┇ ${styleText(stat)} : +${styleNum(increase)}`);
             }
             continue;
         }
@@ -92,13 +95,10 @@ async function executePowerEngine(senderID, userData, powerConfig) {
         const current = userData.character[effect.stat] || 0;
 
         updates[statKey] = current + total;
-        messages.push(`⊳${styleText(effect.stat)}  +${styleNum(total)}`);
+        messages.push(`✾ ┇ ${styleText(effect.stat)} : +${styleNum(total)}`);
     }
 
-    // [تعديل 1]: حفظ وقت الاستخدام داخل status بدلاً من character
-    // استخدام "status.lastPowerUsed" سيقوم بتحديث هذا الحقل تحديداً أو إنشائه
     updates['status.lastPowerUsed'] = Date.now();
-
     await updateUser(senderID, updates);
     return messages.join("\n");
 }
@@ -106,60 +106,56 @@ async function executePowerEngine(senderID, userData, powerConfig) {
 module.exports = {
     name: "قدرتي",
     otherName: ['قدرتى', 'power'],
-    type: ['الالعاب'], 
-   cooldown: 0, 
-     rank: 0,
-    usageCount: 0,
+    category: 'الألعاب', 
+    cooldown: 0, 
+    rank: 0,
     run: async (api, event, commands, args) => {
         const { threadID, senderID, messageID } = event;
 
         try {
             const user = await getUser(senderID);
             if (!user || !user.character)
-                return api.sendMessage("لا تملك شخصية بعد.", threadID, messageID);
+                return api.sendMessage(`${FLOWER} ┇ لا تملك شخصية بعد.. استخدم "تسجيل".`, threadID, messageID);
 
-            // [تعديل 2]: ضمان وجود كائن status لتجنب الأخطاء
             user.status = user.status || {};
-
             const type = user.character.type;
             const config = POWERS_MAP[type];
 
             if (!config)
-                return api.sendMessage("نوع شخصيتك لا يملك قدرة معروفة.", threadID, messageID);
+                return api.sendMessage(`${FLOWER} ┇ نوع شخصيتك لا يملك قدرة نين معروفة.`, threadID, messageID);
 
             const lvl = user.character.level;
             if (lvl < config.requirements.level)
                 return api.sendMessage(
-                    `محتاج تصل مستوي ${styleNum(config.requirements.level)} عشان تستعمل قدرتك`,
+                    `${FLOWER} ┇ يتطلب تفعيل القدرة الوصول للمستوى [ ${styleNum(config.requirements.level)} ]`,
                     threadID, messageID 
                 );
 
             // ----------- عرض المعلومات ------------
             if (!args[0] || args[0] === "معلومات") {
-                let msg = `──────────\n⊳ ${config.name}\n──────────\n${config.description}\n\n`;
-                msg += `⊳ النوع: ${type}\n`;
-                msg += `⊳ المستوى المطلوب: ${config.requirements.level}\n`;
-                msg += `⊳ الاستخدام: قدرتي تفعيل\n──────────\n`;
+                let msg = `${SEP}\n   ✾ ┇ ⦿ ⟬ ${styleText(config.name)} ⟭\n${SEP}\n`;
+                msg += `✾ ┇ الوصف: ${config.description}\n`;
+                msg += `✾ ┇ النوع: ${styleText(type)}\n`;
+                msg += `✾ ┇ المستوى المطلوب: ${styleNum(config.requirements.level)}\n`;
+                msg += `✾ ┇ الاستخدام: قدرتي تفعيل\n${SEP}\n`;
 
                 config.effects.forEach(effect => {
                     if (effect.type === "PEAK_MODE") {
                         const percent = effect.basePercent + (lvl * effect.scalingPercent);
-                        msg += `⊳ حالة الذروة: زيادة جميع الإحصائيات بنسبة ~${percent.toFixed(1)}%\n`;
+                        msg += `✾ ┇ حالة الذروة: زيادة الكل بنسبة ~${styleNum(percent.toFixed(1))}%\n`;
                     } else {
                         const total = effect.base + Math.floor(lvl * effect.scaling);
-                        msg += `⊳ ${styleText(effect.stat)}: +${styleNum(total)}\n`;
+                        msg += `✾ ┇ ${styleText(effect.stat)}: +${styleNum(total)}\n`;
                     }
                 });
-
+                msg += `${SEP}`;
                 return api.sendMessage(msg, threadID, messageID);
             }
 
             // ----------- تنفيذ القدرة ------------
             if (args[0] !== "تفعيل")
-                return api.sendMessage("الاستخدام الصحيح: قدرتي تفعيل", threadID, messageID);
+                return api.sendMessage(`${FLOWER} ┇ الاستخدام الصحيح: "قدرتي تفعيل"`, threadID, messageID);
 
-            // ************** التحقق من التهدئة عبر status **************
-            // [تعديل 3]: قراءة الوقت من user.status.lastPowerUsed
             const lastUsed = user.status.lastPowerUsed || 0;
             const now = Date.now();
             const timeElapsed = now - lastUsed;
@@ -172,24 +168,26 @@ module.exports = {
                 
                 let timeMsg = "";
                 if (minutes > 0) timeMsg += `${styleNum(minutes)} دقيقة`;
-                if (remainingSeconds > 0) timeMsg += (minutes > 0 ? " و " : "") + `${remainingSeconds} ثانية`;
+                if (remainingSeconds > 0) timeMsg += (minutes > 0 ? " و " : "") + `${styleNum(remainingSeconds)} ثانية`;
 
                 return api.sendMessage(
-                    `[فترة تهدئة] \n⊳ يرجى الانتظار: ${timeMsg} لاستخدام قدرتك مرة أخرى.`,
+                    `${SEP}\n${FLOWER} ┇ فترة التهدئة (Cooldown)\n✾ ┇ يرجى الانتظار: ${timeMsg}\n${SEP}`,
                     threadID, messageID
                 );
             }
-            // ************** نهاية التحقق **************
 
             const resultMessage = await executePowerEngine(senderID, user, config);
 
-            return api.sendMessage(`────────\n${resultMessage}\n────────`, threadID, messageID);
+            return api.sendMessage(
+                `${SEP}\n   ✾ ┇ ⦿ ⟬ ${styleText('POWER ACTIVATED')} ⟭\n${SEP}\n` +
+                `${resultMessage}\n` +
+                `${SEP}\n✨ "لقد تدفقت طاقة النين في عروقك!" ✨`, 
+                threadID, messageID
+            );
 
         } catch (error) {
             log.error(`[قدرتي] خطأ: ${error.message}`);
-            console.error(error); 
-            return api.sendMessage("حدث خطأ أثناء تشغيل القدرة.", threadID, messageID) ;
+            return api.sendMessage(`${FLOWER} ┇ حدث خطأ أثناء تفعيل النين.`, threadID, messageID) ;
         }
     }
 };
-
