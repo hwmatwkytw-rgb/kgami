@@ -1,13 +1,13 @@
 const log = require('../logger');
 const { styleText } = require('../tools');
 
-const SEP = "⎔────────────⎔";
-const ICON = "㊙︎";
+const SEP = "●───── ✾ ⌬ ✾ ─────●";
+const FLOWER = "✾";
 
 module.exports = {
   name: "اقتباس",
   otherName: ["quote", "حكمة"],
-  type: ['النصوص', 'اخري'],
+  category: "النصوص", // تم وضعه في فئة النصوص لتناسب محتواه
   rank: 0,
   cooldown: 2,
   description: 'يجلب لك اقتباس عشوائي من السجلات الملكية',
@@ -26,13 +26,19 @@ module.exports = {
 
       const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
 
-      // التنسيق الهندسي الجديد (البداية والنهاية فقط)
-      const msg = `${SEP}\n  ${styleText('ROYAL QUOTE')}\n\n"${randomQuote.q}"\n\n${ICON} القائل: ${randomQuote.a}\n\n${SEP}`;
+      // التنسيق الجديد بزقرة إبلين الموحدة
+      const msg = 
+        `${SEP}\n` +
+        `   ✾ ┇ ⦿ ⟬ ${styleText('ROYAL QUOTE')} ⟭\n` +
+        `${SEP}\n` +
+        `"${randomQuote.q}"\n\n` +
+        `✾ ┇ القائل: ${styleText(randomQuote.a)}\n` +
+        `${SEP}`;
       
       api.sendMessage(msg, event.threadID, event.messageID);
 
     } catch (err) {
-      api.sendMessage(`${ICON} | أعتذر، حدث خطأ في استخراج الحكمة.`, event.threadID, event.messageID);
+      api.sendMessage(`${FLOWER} ┇ أعتذر، حدث خطأ في استخراج الحكمة.`, event.threadID, event.messageID);
       log.error(err);
     }
   }
