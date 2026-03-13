@@ -1,7 +1,9 @@
 const axios = require('axios');
 
 module.exports = {
-  name: "img",
+  name: "جلب",
+  otherName: ['صورة', 'جلب'],
+  category: "الوسائط", // تمت إضافته لفئة الوسائط ليظهر في الأوامر
   cooldown: 5,
   rank: 2,
   run: async (api, event, commands, args) => {
@@ -9,7 +11,7 @@ module.exports = {
       const url = args[0];
       if (!url)
         return api.sendMessage(
-          "⊳ أرسل رابط صورة",
+          "✾ ┇ أرسل رابط صورة صحيح  .",
           event.threadID,
           event.messageID
         );
@@ -27,7 +29,7 @@ module.exports = {
       // التحقق الحقيقي من نوع الملف
       if (!contentType || !contentType.includes("image")) {
         return api.sendMessage(
-          "⊳ الرابط لا يحتوي على صورة",
+          "✾ ┇ عذراً، الرابط ده ما فيهو صورة.",
           event.threadID,
           event.messageID
         );
@@ -35,7 +37,7 @@ module.exports = {
 
       await api.sendMessage(
         {
-          body: "",
+          body: "●───── ✾ ⌬ ✾ ─────●\n✾ ┇ تـم جـلـب الـصـورة بـنـجـاح ✅\n●───── ✾ ⌬ ✾ ─────●",
           attachment: res.data
         },
         event.threadID,
@@ -44,7 +46,7 @@ module.exports = {
 
     } catch (e) {
       api.sendMessage(
-        "⊳ تعذر جلب الصورة من الرابط",
+        "✾ ┇ تعذر جلب الصورة، الرابط قد يكون تالفاً.",
         event.threadID,
         event.messageID
       );
