@@ -1,17 +1,21 @@
 module.exports = {
   name: "رابط",
   rank: 0,
+  category: "الوسائط", // إضافة الفئة المطلوبة
   description: "إرسال رابط إنطلاقا من المرفق",
   hide: true,  
   run: async (api, event) => {
-    const { messageReply } = event;
+    const { messageReply, threadID, messageID } = event;
 
-    // التحقق من أن الرسالة هي رسالة مُعاد توجيهها وأن لديها مرفق واحد على الأقل
+    // التحقق من أن الرد يحتوي على مرفق واحد
     if (event.type !== "message_reply" || !messageReply.attachments || messageReply.attachments.length !== 1) {
-      return api.sendMessage(getText("رد علي صورة"), event.threadID, event.messageID);
+      return api.sendMessage("✾ ┇ ⚠️ | يرجى الرد على صورة أو فيديو لاستخراج الرابط.", threadID, messageID);
     }
 
-    // إرسال رابط المرفق في الرسالة المُعاد توجيهها
-    return api.sendMessage(messageReply.attachments[0].url, event.threadID, event.messageID);
+    // إرسال الرابط داخل برواز إبلين الصغير
+    const url = messageReply.attachments[0].url;
+    const response = `●────── ✾ ⌬ ✾ ──────●\n✾ ┇ ⦿ ⟬ رابـط الـمـرفـق ⟭\n✾ ┇\n✾ ┇ ${url}\n✾ ┇\n●────── ✾ ⌬ ✾ ──────●`;
+
+    return api.sendMessage(response, threadID, messageID);
   },
 };
