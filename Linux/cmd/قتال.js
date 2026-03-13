@@ -1,6 +1,6 @@
 const { getUser, updateUser } = require('../data/user');
 const config = require('../config.json');
-const { styleNum } = require('../tools');
+const { styleNum, styleText } = require('../tools');
 
 const CONSTS = {
   MIN_HIT_PCT: 0.30,
@@ -24,9 +24,9 @@ const Utils = {
   calcTotalPower: (char) => (char.ATK || 0) + (char.DEF || 0) + (char.SPD || 0) + (char.IQ || 0)
 };
 
-// فواصل الزخرفة
-const sep = "⎔────────────⎔";
-const butterfly = "🦋  🦋";
+// فواصل الزخرفة الموحدة لإبلين
+const SEP = "●───── ✾ ⌬ ✾ ─────●";
+const FLOWER = "✾";
 
 class BattleSystem {
   constructor(attacker, defender) {
@@ -99,29 +99,30 @@ class BattleSystem {
 
 module.exports = {
   name: 'قتال',
-  type: ['الالعاب'],
-  otherName: ['', 'قتال'],
+  category: 'الألعاب', // تمت إضافته لقائمة الألعاب
+  otherName: ['ضرب', 'مواجهة'],
   cooldown: 5,
   rank: 0,
   run: async (api, event) => {
     try {
       if (!event.messageReply || !event.messageReply.senderID) {
-        return api.sendMessage("🦋 | عذراً.. عليكِ تحديد الخصم أولاً بالرد على رسالته.", event.threadID, event.messageID);
+        return api.sendMessage(`${FLOWER} ┇ عذراً.. عليك تحديد الخصم أولاً بالرد على رسالته.`, event.threadID, event.messageID);
       }
       
       const attackerId = event.senderID;
       const defenderId = event.messageReply.senderID;
       
-      if (attackerId === defenderId) return api.sendMessage("🦋 | أوه؟ هل تحاولين إيذاء نفسكِ؟ هذا ليس من شيم المحاربين.", event.threadID, event.messageID);
+      if (attackerId === defenderId) return api.sendMessage(`${FLOWER} ┇ أوه؟ هل تحاول إيذاء نفسك؟ هذا ليس من شيم المحاربين.`, event.threadID, event.messageID);
       
       const [attackerDoc, defenderDoc] = await Promise.all([getUser(attackerId), getUser(defenderId)]);
-      if (!attackerDoc?.character) return api.sendMessage("🦋 | يبدو أنكِ لم تسجلي حضوركِ بعد.. استخدمي 'تسجيل'.", event.threadID, event.messageID);
-      if (!defenderDoc?.character) return api.sendMessage("🦋 | الخصم غير موجود في سجلاتي..", event.threadID, event.messageID);
-      if (attackerDoc.character.HP <= 0) return api.sendMessage("🦋 | جسدكِ متعب جداً.. عليكِ الاستراحة أولاً.", event.threadID, event.messageID);
-      if (defenderDoc.character.HP <= 0) return api.sendMessage("🦋 | كفى.. الخصم قد سقط بالفعل، لا حاجة لمزيد من السموم.", event.threadID, event.messageID);
+      if (!attackerDoc?.character) return api.sendMessage(`${FLOWER} ┇ يبدو أنك لم تسجل حضورك بعد.. استخدم 'تسجيل'.`, event.threadID, event.messageID);
+      if (!defenderDoc?.character) return api.sendMessage(`${FLOWER} ┇ الخصم غير موجود في سجلاتي..`, event.threadID, event.messageID);
+      if (attackerDoc.character.HP <= 0) return api.sendMessage(`${FLOWER} ┇ جسدك متعب جداً.. عليك الاستراحة أولاً.`, event.threadID, event.messageID);
+      if (defenderDoc.character.HP <= 0) return api.sendMessage(`${FLOWER} ┇ كفى.. الخصم قد سقط بالفعل، انتهت المعركة.`, event.threadID, event.messageID);
       
-      if (attackerDoc?.character.location != defenderDoc?.character.location) {
-        return api.sendMessage(`🦋 | هو في ${defenderDoc.character.location} وأنتِ هنا.. المسافة بعيدة جداً على أجنحتي.`, event.threadID, event.messageID);
+      // فحص الموقع إذا كان مفعل في نظامك
+      if (attackerDoc.character.location && defenderDoc.character.location && attackerDoc.character.location != defenderDoc.character.location) {
+        return api.sendMessage(`${FLOWER} ┇ هو في ${defenderDoc.character.location} وأنت هنا.. المسافة بعيدة جداً.`, event.threadID, event.messageID);
       }
 
       if (config.ATTACKD === true) {
@@ -130,10 +131,10 @@ module.exports = {
         const diff = powerA - powerD;
         
         if (diff > CONSTS.POWER_GAP_LIMIT) {
-          return api.sendMessage("🦋 | ملاحقة الضعفاء لا تليق بمكانتكِ.. ابحثي عن خصم حقيقي.", event.threadID, event.messageID);
+          return api.sendMessage(`${FLOWER} ┇ ملاحقة الضعفاء لا تليق بمكانتك.. ابحث عن خصم حقيقي.`, event.threadID, event.messageID);
         }
         if (diff < -CONSTS.POWER_GAP_LIMIT) {
-          return api.sendMessage("🦋 | مهلاً.. هذا الخصم يفوق قدرتكِ حالياً، لا تتهوري.", event.threadID, event.messageID);
+          return api.sendMessage(`${FLOWER} ┇ مهلاً.. هذا الخصم يفوق قدرتك حالياً، لا تتهور.`, event.threadID, event.messageID);
         }
       }
       
@@ -145,29 +146,28 @@ module.exports = {
         updateUser(defenderId, { character: defenderDoc.character })
       ]);
       
-      let msg = `${butterfly}\n`;
-      msg += `⚔️ | سـاحـة الـقـتـال\n`;
-      msg += `${sep}\n`;
-      msg += `👤 الـمـهـاجم: ${attackerDoc.character.name}\n`;
-      msg += `🎯 الـهـدف: ${defenderDoc.character.name}\n`;
-      msg += `${sep}\n`;
-      msg += `💢 الـضـرر: -${styleNum(result.damage)}\n`;
-      msg += `✨ الـحـالـة: ${result.hitText}\n`;
-      msg += `${sep}\n`;
-      msg += `🩸 دم الخصم: ${styleNum(result.defenderChar.HP)} / ${styleNum(defenderDoc.character.XHP)}\n`;
+      let msg = `${SEP}\n`;
+      msg += `   ✾ ┇ ⦿ ⟬ ${styleText('BATTLE ARENA')} ⟭\n`;
+      msg += `${SEP}\n`;
+      msg += `✾ ┇ المهاجم: ${styleText(attackerDoc.character.name)}\n`;
+      msg += `✾ ┇ الهدف: ${styleText(defenderDoc.character.name)}\n`;
+      msg += `${SEP}\n`;
+      msg += `✾ ┇ الضرر: -${styleNum(result.damage)}\n`;
+      msg += `✾ ┇ الحالة: ${result.hitText}\n`;
+      msg += `${SEP}\n`;
+      msg += `✾ ┇ دم الخصم: ${styleNum(result.defenderChar.HP)} / ${styleNum(defenderDoc.character.XHP)}\n`;
       
       if (result.isDead) {
-        msg += `${sep}\n`;
-        msg += `🦋 | "أرقد بسلام.. فقد انتهى ألمك الآن."`;
-      } else {
-        msg += `${butterfly}`;
+        msg += `${SEP}\n`;
+        msg += `✨ "أرقد بسلام.. فقد انتهى ألمك الآن." ✨\n`;
       }
+      msg += `${SEP}`;
       
       return api.sendMessage(msg, event.threadID, event.messageID);
       
     } catch (err) {
       console.error(err);
-      return api.sendMessage("❌ | حدث اضطراب في مصل القتال..", event.threadID, event.messageID);
+      return api.sendMessage(`${FLOWER} ┇ حدث اضطراب في مصل القتال..`, event.threadID, event.messageID);
     }
   }
-}
+};
