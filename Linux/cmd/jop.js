@@ -2,8 +2,8 @@ const { getUser, updateUser } = require('../data/user');
 const { styleNum } = require('../tools')
 
 const COOLDOWN_TIME = 30 * 60 * 1000; 
-const SEP = "⊱━━━━━━━━━━━━━━━⊰ 🦋 ⊱━━━━━━━━━━━━━━━⊰";
-const BUTTERFLY = "🦋";
+const SEP = "●───── ✾ ⌬ ✾ ─────●";
+const FLOWER = "✾";
 
 const JOBS = {
   'صيد الشياطين': {
@@ -80,7 +80,7 @@ const handleJobCommand = async (api, event, user) => {
     if (minutes > 0) timeMsg += `${styleNum(minutes)} دقيقة`;
     if (seconds > 0) timeMsg += `${minutes > 0 ? ' و ' : ''}${styleNum(seconds)} ثانية`;
 
-    return api.sendMessage(`${BUTTERFLY} | جسدك يحتاج للراحة! انتظر ${timeMsg} قبل المهمة التالية.`, threadID, messageID);
+    return api.sendMessage(`${FLOWER} ┇ جسدك يحتاج للراحة! انتظر ${timeMsg} قبل المهمة التالية.`, threadID, messageID);
   }
 
   const jobKeys = Object.keys(JOBS);
@@ -92,7 +92,7 @@ const handleJobCommand = async (api, event, user) => {
 
   if (type === 'neutral') {
     await updateUser(user.id, { lastJobTime: user.lastJobTime });
-    return api.sendMessage(`${BUTTERFLY} | الغراب أبلغك أنه لا توجد مهمات ${randomJobKey} حالياً.`, threadID, messageID);
+    return api.sendMessage(`${FLOWER} ┇ الغراب أبلغك أنه لا توجد مهمات ${randomJobKey} حالياً.`, threadID, messageID);
   }
 
   user.money = Number(user.money) || 0;
@@ -118,11 +118,11 @@ const handleJobCommand = async (api, event, user) => {
 
   const finalMessage = 
     `${SEP}\n` +
-    `${BUTTERFLY} | تـقـريـر الـمـهـمـة\n` +
+    `${FLOWER} ┇ تـقـريـر الـمـهـمـة ✅\n` +
     `${SEP}\n` +
-    `⌬ ${job.baseMessage}\n` +
-    `⌬ ${action} ${sign}${styleNum(formattedAmount)} جنيه.\n` +
-    `⌬ رصيدك الحالي: ${styleNum(balance)} جنيه.\n` +
+    `✾ ┇ ${job.baseMessage}\n` +
+    `✾ ┇ ${action} ${sign}${styleNum(formattedAmount)} جنيه.\n` +
+    `✾ ┇ رصيدك الحالي: ${styleNum(balance)} جنيه.\n` +
     `${SEP}`;
 
   api.sendMessage(finalMessage, threadID, messageID);
@@ -131,12 +131,12 @@ const handleJobCommand = async (api, event, user) => {
 module.exports = {
   name: 'عمل',
   otherName: ['شغل', 'job'],
-  type: ['الاموال', 'الالعاب'],
+  category: 'الألعاب', // تم تغييره ليظهر ضمن فئة الألعاب في قائمة الأوامر
   rank: 0,
   run: async (api, event) => {
     const user = await getUser(event.senderID);
     if (!user) {
-      return api.sendMessage(`${BUTTERFLY} | لم يتم تسجيلك في سجلات الفيلق. استخدم "تسجيل" أولاً.`, event.threadID, event.messageID);
+      return api.sendMessage(`${FLOWER} ┇ لم يتم تسجيلك في سجلات الفيلق. استخدم "تسجيل" أولاً.`, event.threadID, event.messageID);
     }
     await handleJobCommand(api, event, user);
   }
