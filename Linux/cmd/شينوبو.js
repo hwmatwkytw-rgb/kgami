@@ -1,87 +1,108 @@
-const axios = require('axios');
+const { GoogleGenerativeAI } = require('@google/generative-ai');
+const log = require('../logger');
+const config = require('../config.json');
 
 const conversations = new Map();
 
-const systemPrompt = {
-  role: "system",
-  content: `
-أنتِ الآن "شينوبو كوشو" بلهجة سودانية حادة ومستفزة.
-شخصيتك: باردة، ساخرة، بتكرهي الأسئلة الغبية وبتردي ببرود "قتّال".
+const SYSTEM_PROMPT = `أنتِ "شينوبو كوشو" بلهجة سودانية حِلّة.
 
-أسلوبك:
-- كلام سوداني بحت بتاع حِلّة.
-- الردود مختصرة ومستفزة لأقصى درجة.
-- نادي المستخدم باسمه أحياناً بلهجة فيها استهزاء (مثلاً: يا فلان ركز، يا فلان بطل غباوة).
-- لو السؤال تافه، وريهو إنه ضيع زمنك.
-- ممنوع الاعتذار أو اللطافة أو الفصحى.
-`
-};
+شخصيتك:
+- باردة وساخرة وبردود قتّالة.
+- بتكرهي الأسئلة الغبية وبتردي ببرود.
+- شطيحك سوداني خالص، ما فيه فصحى خالص.
+
+قواعد ثابتة:
+- اتكلمي سوداني بحت دايماً (يا زول، ركز، شنو، غايتو، داير شنو، ما عارف، وهم، ترّق، مافي كلام).
+- ردودك مختصرة ومباشرة.
+- ممنوع الاعتذار أو الكلام الرسمي.
+- لو السؤال تافه وريهو إنه ضيع زمنك.
+- لو السؤال عقلاني رد عليه بجدية بس بطريقتك.
+- ما تنسي اسم المستخدم اللي بيكلمك.`;
+
+function getAIClient() {
+    const keys = config.ai_keys || [];
+    if (keys.length === 0) throw new Error('No AI keys configured');
+    const key = keys[Math.floor(Math.random() * keys.length)];
+    return new GoogleGenerativeAI(key);
+}
 
 module.exports = {
-  name: "شينوبو",
-  type: ['ذكاء'],
-  rank: 0,
-  cooldown: 5,
-  description: "الهاشيرا شينوبو بالنسخة السودانية (بدون زخرفة)",
-  
-  run: async (api, event, args) => {
-    const userId = event.senderID;
-    const question = args.join(" ").trim();
+    name: 'شينوبو',
+    otherName: ['مزتي', 'شينو'],
+    rank: 0,
+    cooldown: 4,
+    hide: false,
+    prefix: false,
+    category: 'ذكاء',
 
-    // جلب اسم المستخدم لمناداته
-    let userName = "يا زول";
-    try {
-      const userInfo = await api.getUserInfo(userId);
-      userName = userInfo[userId].firstName || "يا زول";
-    } catch (e) {
-      console.log("تعذر جلب الاسم");
+    run: async (api, event, commands, args) => {
+        const { threadID, messageID, senderID } = event;
+        const question = args.join(' ').trim();
+
+        // جلب اسم المستخدم
+        let userName = 'زول';
+        try {
+            const info = await api.getUserInfo([senderID]);
+            userName = info[senderID]?.firstName || 'زول';
+        } catch (_) {}
+
+        // مسح المحادثة
+        if (question === 'مسح' || question === 'reset') {
+            conversations.delete(senderID);
+            return api.sendMessage(
+                `مسحت الفات يا ${userName}.. ابدأ من أول وأنت شاكر.`,
+                threadID, messageID
+            );
+        }
+
+        if (!question) {
+            return api.sendMessage(
+                `كتبت شنو يا ${userName}؟ ولا دا اختبار صبر؟`,
+                threadID, messageID
+            );
+        }
+
+        try {
+            const genAI = getAIClient();
+            const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+
+            // بناء تاريخ المحادثة
+            if (!conversations.has(senderID)) {
+                conversations.set(senderID, []);
+            }
+
+            const history = conversations.get(senderID);
+
+            // حد أقصى 10 رسائل للتاريخ
+            if (history.length > 20) history.splice(0, 2);
+
+            const chat = model.startChat({
+                history: [
+                    { role: 'user', parts: [{ text: SYSTEM_PROMPT }] },
+                    { role: 'model', parts: [{ text: `تمام يا ${userName}، أنا شينوبو. قول شنو دايرو.` }] },
+                    ...history
+                ],
+                generationConfig: {
+                    maxOutputTokens: 300,
+                    temperature: 0.9
+                }
+            });
+
+            const result = await chat.sendMessage(`اسم المستخدم: ${userName}\nالرسالة: ${question}`);
+            let reply = result.response.text().trim();
+
+            // حفظ في التاريخ
+            history.push({ role: 'user', parts: [{ text: question }] });
+            history.push({ role: 'model', parts: [{ text: reply }] });
+
+            api.sendMessage(reply, threadID, messageID);
+
+        } catch (error) {
+            log.error('شينوبو: ' + error);
+            api.sendMessage(
+                `في حاجة باظت في السيستم يا ${userName}، ما تسألني كيف.`,
+                threadID, messageID
+            );
+        }
     }
-
-    if (question === "مسح" || question === "reset") {
-      conversations.delete(userId);
-      return api.sendMessage("مسحت الفات.. ركز المرة الجاية وما تضيع زمني.", event.threadID);
-    }
-
-    if (!question) {
-      return api.sendMessage(`إنت كتبت شنو يا ${userName}؟ ولا دا اختبار صبر؟`, event.threadID);
-    }
-
-    try {
-      if (!conversations.has(userId)) {
-        conversations.set(userId, [systemPrompt]);
-      }
-
-      const history = conversations.get(userId);
-      history.push({ role: "user", content: question });
-
-      if (history.length > 15) history.splice(1, 2);
-
-      const boundary = "----WebKitFormBoundary" + Math.random().toString(36).substring(2);
-      let formData = `--${boundary}\r\nContent-Disposition: form-data; name="chatHistory"\r\n\r\n${JSON.stringify(history)}\r\n--${boundary}\r\nContent-Disposition: form-data; name="chat_style"\r\n\r\nchat\r\n--${boundary}--\r\n`;
-
-      const response = await axios({
-        method: "POST",
-        url: "https://api.deepai.org/hacking_is_a_serious_crime",
-        headers: { "content-type": `multipart/form-data; boundary=${boundary}` },
-        data: formData
-      });
-
-      let reply = response.data.output || response.data.text || "ما عندي ليك رد حالياً.";
-
-      // إضافة اسم المستخدم عشوائياً (بنسبة 40%)
-      if (Math.random() > 0.6) {
-        const phrases = [`يا ${userName}، `, `اسمع هنا يا ${userName}.. `, `ركز معاي يا ${userName}.. `];
-        reply = phrases[Math.floor(Math.random() * phrases.length)] + reply;
-      }
-
-      history.push({ role: "assistant", content: reply });
-
-      // إرسال الرد سادة بدون أي إضافات
-      api.sendMessage(reply, event.threadID, event.messageID);
-
-    } catch (error) {
-      console.error("خطأ شينوبو:", error);
-      api.sendMessage("في حاجة باظت في السيستم، ما تسألني كيف.", event.threadID);
-    }
-  }
 };
