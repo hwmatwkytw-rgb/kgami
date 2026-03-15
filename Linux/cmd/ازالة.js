@@ -5,27 +5,22 @@ const path = require('path');
 module.exports = {
   name: "ازالة",
   otherName: ["bg", "removebg"],
-  category: "الوسائط ",
+  category: "الترفيه", // الفئة هنا يا بطل
   rank: 0,
   cooldown: 5,
-  description: "إزالة خلفية الصور",
 
-  run: async function ({ api, event }) {
+  run: async (api, event) => {
     const { threadID, messageID, messageReply, type } = event;
-    const SEP = "●───── ✾ ⌬ ✾ ─────●";
-    const FLOWER = "✾";
+    const apiKey = "CNYjGk9RRUB6XRmP4UsuceoU"; 
 
     if (type !== "message_reply" || !messageReply.attachments[0] || messageReply.attachments[0].type !== "photo") {
-      return api.sendMessage(`${FLOWER} ┇ يـرجى الـرد على صورة يا بطل.`, threadID, messageID);
+      return api.sendMessage("⚠️ يـرجى الـرد على صـورة لإزالـة خـلفـيتها.", threadID, messageID);
     }
 
-    const apiKey = "CNYjGk9RRUB6XRmP4UsuceoU"; 
-    const cachePath = path.join(process.cwd(), 'cache', `rem_${Date.now()}.png`);
-
-    api.setMessageReaction("⏳", messageID, () => {}, true);
+    api.setMessageReaction("⏳", messageID, (err) => {}, true);
+    const cachePath = path.join(__dirname, 'cache', `rembg_${Date.now()}.png`);
 
     try {
-      await fs.ensureDir(path.join(process.cwd(), 'cache'));
       const response = await axios({
         method: 'post',
         url: 'https://api.remove.bg/v1.0/removebg',
@@ -34,17 +29,17 @@ module.exports = {
         responseType: 'arraybuffer'
       });
 
-      await fs.writeFile(cachePath, response.data);
-      api.setMessageReaction("✅", messageID, () => {}, true);
+      fs.outputFileSync(cachePath, response.data);
+      api.setMessageReaction("✅", messageID, (err) => {}, true);
 
       await api.sendMessage({
-        body: `${SEP}\n${FLOWER} ┇ تـم إزالـة الـخـلـفـية بـنـجـاح ✨\n${SEP}`,
+        body: "✨ تـم إزالـة الـخـلـفـية بـنـجـاح",
         attachment: fs.createReadStream(cachePath)
       }, threadID, () => fs.unlinkSync(cachePath), messageID);
 
     } catch (e) {
-      api.setMessageReaction("❌", messageID, () => {}, true);
-      api.sendMessage(`${FLOWER} ┇ حـدث خطأ في الـسيرفر أو انـتهى رصـيد الـمفتاح.`, threadID, messageID);
+      api.setMessageReaction("❌", messageID, (err) => {}, true);
+      api.sendMessage("❌ حـدث خـطأ في الـ API أو الـصورة.", threadID, messageID);
     }
   }
 };
