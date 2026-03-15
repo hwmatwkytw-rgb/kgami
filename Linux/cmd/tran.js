@@ -4,7 +4,7 @@ const log = require('../logger');
 module.exports = {
   name: "ترجم",
   otherName: ["translate"],
-  type: ['الاموال'],
+  category: "الأدوات", // تم نقله لفئة الأدوات لتناسب وظيفته
   rank: 0,
   cooldown: 3,
   description: 'ترجمة تلقائية إلى العربية مع التعرف التلقائي على اللغة',
@@ -78,6 +78,7 @@ module.exports = {
       if (!translated)
         return api.sendMessage("⚠️ تعذر ترجمة النص حالياً. حاول لاحقاً.", event.threadID, event.messageID);
 
+      // إرسال الترجمة مباشرة (بدون زخارف) لتسهيل النسخ
       return api.sendMessage(translated, event.threadID, event.messageID);
 
     } catch (err) {
