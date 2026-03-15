@@ -1,50 +1,54 @@
+const fs = require('fs');
+const path = require('path');
+
 module.exports = {
   name: "موافقة",
-  otherName: ["اريني", "الطلبات"],
-  category: "المطور",
-  rank: 2,
+  otherName: ["requests", "pending"],
+  rank: 2, // مخصص للمطورين فقط
   cooldown: 5,
 
-  handleReply: async ({ api, event, handleReply }) => {
-    const { body, threadID, messageID, senderID } = event;
-    if (handleReply.author !== senderID) return;
-
-    const index = parseInt(body) - 1;
-    if (isNaN(index) || index < 0 || index >= handleReply.requests.length) return;
-
-    const target = handleReply.requests[index];
-
-    api.handleGroupLeave(target.threadID, (err) => {
-      // هنا تضع منطق القبول أو الرفض حسب مكتبتك
-      api.sendMessage(`✾ ┇ تم التعامل مع المجموعة: ${target.threadID}`, threadID);
-    });
-  },
-
-  run: async ({ api, event }) => {
+  run: async (api, event) => {
     const { threadID, messageID, senderID } = event;
-    const SEP = "●───── ✾ ⌬ ✾ ─────●";
-    const FLOWER = "✾";
 
     try {
+      // جلب قائمة الطلبات المعلقة (PENDING)
       const spam = await api.getThreadList(100, null, ["PENDING"]);
-      if (spam.length === 0) return api.sendMessage(`${FLOWER} ┇ لا توجد طلبات انضمام حالياً.`, threadID, messageID);
+      const other = await api.getThreadList(100, null, ["OTHER"]);
+      const allRequests = [...spam, ...other];
 
-      let msg = `${SEP}\n${FLOWER} ┇ ⦿ ⟬ طـلـبات الانـضمـام (${spam.length}) ⟭\n${FLOWER} ┇\n`;
-      spam.forEach((s, i) => {
-        msg += `${FLOWER} ┇ ⟬ ${i + 1} ⟭ ${s.name || "مجموعة جديدة"}\n${FLOWER} ┇  ID: ${s.threadID}\n`;
+      if (allRequests.length === 0) {
+        return api.sendMessage("✾ ┇ لا توجد طلبات انضمام للمجموعات حالياً.", threadID, messageID);
+      }
+
+      let msg = `⦿ طـلـبات الانـضمـام الـمعلـقة (${allRequests.length})\n\n`;
+      const requestsInfo = [];
+
+      allRequests.forEach((req, i) => {
+        // إظهار اسم المجموعة أو كتابة "بدون اسم" لو كانت خاصة
+        const groupName = req.name || "مجموعة جديدة / محادثة خاصة";
+        msg += `${i + 1}. الاسم: ${groupName}\n🆔 ID: ${req.threadID}\n──────────────\n`;
+        
+        requestsInfo.push({
+          threadID: req.threadID,
+          name: groupName
+        });
       });
-      msg += `${SEP}`;
 
-      api.sendMessage(msg, threadID, (err, info) => {
+      msg += `\nرد برقم المجموعة للموافقة عليها.. 🥱`;
+
+      return api.sendMessage(msg, threadID, (err, info) => {
+        if (!global.client.handleReply) global.client.handleReply = [];
         global.client.handleReply.push({
-          name: "موافقة",
+          name: 'طلبات',
           messageID: info.messageID,
           author: senderID,
-          requests: spam
+          requestsInfo
         });
       }, messageID);
+
     } catch (e) {
-      api.sendMessage(`${FLOWER} ┇ خطأ في جلب الطلبات.`, threadID);
+      console.error(e);
+      api.sendMessage("❌ حدث خطأ أثناء جلب قائمة الطلبات.", threadID, messageID);
     }
   }
 };
