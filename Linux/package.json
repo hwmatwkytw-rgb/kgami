@@ -23,6 +23,7 @@
     "mongoose": "^8.0.0",
     "node-fetch": "^2.7.0",
     "pastebin-js": "^1.0.6",
+    "path": "^0.12.7",
     "replicate": "^1.4.0",
     "request": "^2.88.2",
     "ws3-fca": "^3.5.2"
