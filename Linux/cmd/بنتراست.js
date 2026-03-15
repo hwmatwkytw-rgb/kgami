@@ -5,43 +5,39 @@ const path = require("path");
 module.exports = {
   name: 'بنتراست',
   otherName: ['صور', 'pin'],
-  category: 'الترفيه',
+  category: "الترفيه", // الفئة
   rank: 0,
   cooldown: 5,
 
-  run: async ({ api, event, args }) => {
+  run: async (api, event, args) => {
     const { threadID, messageID } = event;
-    const SEP = "●───── ✾ ⌬ ✾ ─────●";
-    const FLOWER = "✾";
     const input = args.join(" ");
 
-    if (!input) return api.sendMessage(`${FLOWER} ┇ أكتب ما تريد البحث عنه!`, threadID, messageID);
+    if (!input) return api.sendMessage("🔍 يـرجى كـتابة مـا تـريد الـبـحث عـنه.", threadID, messageID);
 
-    api.setMessageReaction("🔍", messageID, () => {}, true);
+    api.setMessageReaction("🔍", messageID, (err) => {}, true);
 
     try {
       const res = await axios.get(`https://pinterest-ashen.vercel.app/api?search=${encodeURIComponent(input)}`);
       const data = res.data.data || [];
-      if (data.length === 0) return api.sendMessage(`⚠️ لم أجد نتائج.`, threadID);
-
-      const imgData = [];
-      const tmpPath = path.join(process.cwd(), 'cache', `pin_${Date.now()}`);
+      const tmpPath = path.join(__dirname, 'cache', `pin_${Date.now()}`);
       await fs.ensureDir(tmpPath);
 
+      const attachments = [];
       for (let i = 0; i < Math.min(6, data.length); i++) {
         const imgRes = await axios.get(data[i], { responseType: 'arraybuffer' });
         const imgFile = path.join(tmpPath, `${i}.jpg`);
-        await fs.outputFile(imgFile, imgRes.data);
-        imgData.push(fs.createReadStream(imgFile));
+        fs.outputFileSync(imgFile, imgRes.data);
+        attachments.push(fs.createReadStream(imgFile));
       }
 
       await api.sendMessage({
-        body: `${SEP}\n${FLOWER} ┇ نـتائج الـبحث لـ: ${input}\n${SEP}`,
-        attachment: imgData
+        body: `🎏 نـتـائـج الـبـحث عـن: ${input}`,
+        attachment: attachments
       }, threadID, () => fs.removeSync(tmpPath), messageID);
 
     } catch (e) {
-      api.sendMessage(`${FLOWER} ┇ حدث خطأ أثناء جلب الصور.`, threadID, messageID);
+      api.sendMessage("❌ فـشل الـبـحث عـن صـور.", threadID, messageID);
     }
   }
 };
