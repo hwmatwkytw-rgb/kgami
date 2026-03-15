@@ -1,17 +1,14 @@
 const axios = require('axios');
 const fs = require('fs-extra');
 const path = require('path');
-const { styleText, styleNum } = require('../tools');
 
 module.exports = {
   name: 'اغنية',
-  otherName: ['song', 'سمعيني', 'أغنية'],
-  version: '2.0',
-  author: 'سينكو',
+  otherName: ['song', 'سمعني', 'أغنية'],
+  category: 'الوسائط ',
   rank: 0, 
   cooldown: 10,
-  description: 'تحميل الأغاني من يوتيوب بجودة عالية وبستايل إبلين',
-  category: 'الوسائط ',
+  description: 'تحميل الأغاني من يوتيوب بستايل إبلين',
 
   handleReply: async ({ api, event, handleReply }) => {
     const { threadID, messageID, body, senderID } = event;
@@ -23,7 +20,7 @@ module.exports = {
     try {
       const choice = parseInt(body);
       if (isNaN(choice) || choice > handleReply.result.length || choice <= 0) {
-        return api.sendMessage(`${FLOWER} ┇ ركـز يا هـم.. قـلـت لـيك رقـم مـن 1 لـ 6 🙄`, threadID, messageID);
+        return api.sendMessage(`${FLOWER} ┇ ركـز يا هـم.. قـلـت لـيك رقـم مـن الـقائمة 🙄`, threadID, messageID);
       }
 
       api.unsendMessage(handleReply.messageID);
@@ -33,7 +30,7 @@ module.exports = {
       const downloadRes = await axios.get(`${handleReply.baseUrl}/ytDl3?link=${selected.id}&format=mp3`);
       
       const filePath = path.join(process.cwd(), 'cache', `music_${Date.now()}.mp3`);
-      await fs.ensureDir(path.join(process.cwd(), 'cache'));
+      await fs.ensureDir(path.dirname(filePath));
 
       const response = await axios({
         method: 'get',
@@ -65,9 +62,7 @@ module.exports = {
     const FLOWER = "✾";
     const query = args.join(' ').trim();
 
-    if (!query) {
-      return api.sendMessage(`${SEP}\n${FLOWER} ┇ دايـرة أغـني لـيك في إذنـك؟\n${FLOWER} ┇ أكـتـب اسـم الأغـنـية يـا وهـم 🙄\n${SEP}`, threadID, messageID);
-    }
+    if (!query) return api.sendMessage(`${FLOWER} ┇ أكـتـب اسـم الأغـنـية يـا وهـم 🙄`, threadID, messageID);
 
     const infoMsg = await api.sendMessage(`${FLOWER} ┇ لـحـظـه مـن وقـتـك.. جـاري الـبـحث 🥱`, threadID, messageID);
 
@@ -78,18 +73,14 @@ module.exports = {
       const searchRes = await axios.get(`${baseUrl}/ytFullSearch?songName=${encodeURIComponent(query)}`);
       const results = searchRes.data.slice(0, 6);
 
-      if (results.length === 0) {
-        return api.editMessage(`${FLOWER} ┇ مـا لـقـيت شـي.. ذوقـك ده نـاشـف خـلاص 😒`, infoMsg.messageID);
-      }
+      if (results.length === 0) return api.editMessage(`${FLOWER} ┇ مـا لـقـيت شـي.. ذوقـك ده نـاشـف 😒`, infoMsg.messageID);
 
       let msg = `${SEP}\n${FLOWER} ┇ ⦿ ⟬ نـتـائج الـبـحث 🎶 ⟭\n${FLOWER} ┇\n`;
-
       results.forEach((res, i) => {
-        msg += `${FLOWER} ┇ ⟬ ${styleNum(i + 1)} ⟭ ${res.title}\n${FLOWER} ┇ ⏱️ الـزمن: ${res.time}\n`;
+        msg += `${FLOWER} ┇ ⟬ ${i + 1} ⟭ ${res.title}\n${FLOWER} ┇ ⏱️ الـزمن: ${res.time}\n`;
         if (i < results.length - 1) msg += `${FLOWER} ┇ ╼╼╼╼╼╼╼╼╼╼╼╼╼\n`;
       });
-
-      msg += `${FLOWER} ┇\n${SEP}\n${FLOWER} ┇ رد بـرقـم الأغـنـية لـلـتـحـمـيـل وسـكـتـنا.. 🥱`;
+      msg += `${FLOWER} ┇\n${SEP}\n${FLOWER} ┇ رد بـرقـم الأغـنـية لـلـتـحـمـيـل.. 🥱`;
 
       api.editMessage(msg, infoMsg.messageID);
 
@@ -102,8 +93,7 @@ module.exports = {
       });
 
     } catch (error) {
-      console.error(error);
-      api.editMessage(`${FLOWER} ┇ الـسيرفر قـرف مـن أغانيك وضرب.. جرب تاني 😒`, infoMsg.messageID);
+      api.editMessage(`${FLOWER} ┇ الـسيرفر ضرب.. جرب تاني 😒`, infoMsg.messageID);
     }
   }
 };
